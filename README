@@ -1,14 +1,14 @@
  # 基本指令集
-指令名称       指令编码           寄存器        操作说明
+指令名称       指令编码          寄存器        操作说明
 ADDIU   01001|xxx|xxxxxxxx    rs     rs<=rs+Sign_extend(Imm)
 ADDIU3  01000|xxx|xxx|0|xxxx  rs,rt  rt<=rs+Sign_extend(Imm)
-*ADDSP  01100011|xxxxxxxx     null   SP<=SP+Sign_extend(Imm)
+*ADDSP  01100 011|xxxxxxxx     null   SP<=SP+Sign_extend(Imm)
 %ADDU   11100|xxx|xxx|xxx|01
 !AND    11101|xxx|xxx|01100
 B       00010|xxxxxxxxxxx
 BEQZ    00100|xxx|xxxxxxxx
 BNEZ    00101|xxx|xxxxxxxx
-*BTEQZ  01100000|xxxxxxxx
+*BTEQZ  01100 000|xxxxxxxx
 !CMP    11101|xxx|xxx|01010
 !JR     11101|xxx|00000000
 LI      01101|xxx|xxxxxxxx
@@ -16,9 +16,9 @@ LW      10011|xxx|xxx|xxxxx
 LW_SP   10010|xxx|xxxxxxxx
 #MFIH   11110|xxx|00000000
 !MFPC   11101|xxx|01000000
-#MTIH   11110|xxx|00000000
-*MTSP   01100100|xxx|00000
-NOP     0000100000000000
+#MTIH   11110|xxx|00000001
+*MTSP   01100 100|xxx|00000
+NOP     00001 000 00000000
 !OR     11101|xxx|xxx|01101
 $SLL    00110|xxx|xxx|xxx|00
 $SRA    00110|xxx|xxx|xxx|11
@@ -39,3 +39,10 @@ SLTUI   01011|xxx|xxxxxxxx
 # MFIH MTIH
 $ SLL SRA
 % ADDU SUBU
+
+Jump:      B BEQZ BNEQZ NTEQZ JALR JR JRRA
+PC:        %Jump% MFPC 
+SP:        ADDSP LW_SP MTSP SW_SP
+T(1 bit):  BTEQZ CMP CMPI SLTUI
+RA:        JAIR JRRA
+IH:        MFIH MTIH 
