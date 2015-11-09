@@ -1,33 +1,41 @@
  # 基本指令集
-ADDIU 
-ADDIU3
-ADDSP
-ADDU
-AND
-B
-BEQZ
-BNEZ
-BTEQZ
-CMP
-JR
-LI
-LW
-LW_SP
-MFIH
-MFPC
-MTIH
-MTSP
-NOP
-OR
-SLL
-SRA
-SUBU
-SW
-SW_SP
+指令名称       指令编码           寄存器        操作说明
+ADDIU   01001|xxx|xxxxxxxx    rs     rs<=rs+Sign_extend(Imm)
+ADDIU3  01000|xxx|xxx|0|xxxx  rs,rt  rt<=rs+Sign_extend(Imm)
+*ADDSP  01100011|xxxxxxxx     null   SP<=SP+Sign_extend(Imm)
+%ADDU   11100|xxx|xxx|xxx|01
+!AND    11101|xxx|xxx|01100
+B       00010|xxxxxxxxxxx
+BEQZ    00100|xxx|xxxxxxxx
+BNEZ    00101|xxx|xxxxxxxx
+*BTEQZ  01100000|xxxxxxxx
+!CMP    11101|xxx|xxx|01010
+!JR     11101|xxx|00000000
+LI      01101|xxx|xxxxxxxx
+LW      10011|xxx|xxx|xxxxx
+LW_SP   10010|xxx|xxxxxxxx
+#MFIH   11110|xxx|00000000
+!MFPC   11101|xxx|01000000
+#MTIH   11110|xxx|00000000
+*MTSP   01100100|xxx|00000
+NOP     0000100000000000
+!OR     11101|xxx|xxx|01101
+$SLL    00110|xxx|xxx|xxx|00
+$SRA    00110|xxx|xxx|xxx|11
+%SUBU   11100|xxx|xxx|xxx|11
+SW      11011|xxx|xxx|xxxxx
+SW_SP   11010|xxx|xxxxxxxx
 
  # 扩展指令集
-CMPI
-JRRA
-JALR
-MOVE
-SLTUI
+CMPI    01110|xxx|xxxxxxxx
+!JALR   11101|xxx|11000000
+!JRRA   1110100000100000
+MOVE    01111|xxx|xxx|00000
+SLTUI   01011|xxx|xxxxxxxx
+
+!*#$%表示前5个数前缀相同
+! AND CMP JR MFPC OR (JALR JRRA)
+* ADDSP BTEQZ MTSP
+# MFIH MTIH
+$ SLL SRA
+% ADDU SUBU
