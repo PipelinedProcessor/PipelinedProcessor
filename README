@@ -2,7 +2,7 @@
 指令名称       指令编码          寄存器        操作说明
 ADDIU   01001|xxx|xxxxxxxx    rs     rs<=rs+Sign_extend(Imm)
 ADDIU3  01000|xxx|xxx|0|xxxx  rs,rt  rt<=rs+Sign_extend(Imm)
-*ADDSP  01100 011|xxxxxxxx     null   SP<=SP+Sign_extend(Imm)
+*ADDSP  01100 011|xxxxxxxx    null   SP<=SP+Sign_extend(Imm)
 %ADDU   11100|xxx|xxx|xxx|01
 !AND    11101|xxx|xxx|01100
 B       00010|xxxxxxxxxxx
@@ -33,7 +33,7 @@ CMPI    01110|xxx|xxxxxxxx
 MOVE    01111|xxx|xxx|00000
 SLTUI   01011|xxx|xxxxxxxx
 
-!*#$%表示前5个数前缀相同
+!*#$%表示前5 bits前缀相同
 ! AND CMP JR MFPC OR (JALR JRRA)
 * ADDSP BTEQZ MTSP
 # MFIH MTIH
@@ -42,7 +42,11 @@ $ SLL SRA
 
 Jump:      B BEQZ BNEQZ NTEQZ JALR JR JRRA
 PC:        %Jump% MFPC 
-SP:        ADDSP LW_SP MTSP SW_SP
-T(1 bit):  BTEQZ CMP CMPI SLTUI
-RA:        JAIR JRRA
-IH:        MFIH MTIH 
+SP:        ADDSP LW_SP MTSP SW_SP  该寄存器不会被单独处理，原因为与基本寄存器有相似的运算指令
+T(1 bit):  BTEQZ CMP CMPI SLTUI       该寄存器将单独处理，原因为只有一位标识位
+RA:        JAIR JRRA                  该寄存器将单独处理，原因为在JALR命令中与PC同时被赋值
+IH:        MFIH MTIH               该寄存器不会被单独处理，原因为出现频率较低，不会显著影响速度
+
+%对SP,T,PC进行赋值前可能需要经过ALU，但RA,IH需要,
+%故可以将SP看作与8个普通寄存器相似的存在，
+%RA,IH在经历ALU之前直接赋值可能会节省一些时间，待讨论
