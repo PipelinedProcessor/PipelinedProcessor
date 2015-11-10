@@ -29,7 +29,7 @@ SW_SP   11010|xxx|xxxxxxxx
  # 扩展指令集
 CMPI    01110|xxx|xxxxxxxx
 !JALR   11101|xxx|11000000
-!JRRA   1110100000100000
+!JRRA   11101 00000100000
 MOVE    01111|xxx|xxx|00000
 SLTUI   01011|xxx|xxxxxxxx
 
@@ -50,3 +50,24 @@ IH:        MFIH MTIH               该寄存器不会被单独处理，原因为
 %对SP,T,PC进行赋值前可能需要经过ALU，但RA,IH需要,
 %故可以将SP看作与8个普通寄存器相似的存在，
 %RA,IH在经历ALU之前直接赋值可能会节省一些时间，待讨论
+
+访存：时钟可能由50MHz降至25MHz
+
+
+ ＃ 数据通路中所用数据通路详述见下：
+
+控制信号  控制指令 比特数 高电平条件
+TBranch  BTEQZ   1   当前控制指令为BTEQZ
+Branch   BEQZ    1   当前控制指令为BEQZ （注：BNQZ指令暂未加入）
+MemRead   **     1   需要根据输入地址读取其内容，后输出
+MemWrite  **     1   需要根据输入地址写入数据
+MemtiReg  **     1   写回(WriteBack)的是读取的内存中的内容；为低电平时，写回的是ALU的结果 （什么鬼名字）
+ALUOp     **    未定（与ALU数目有关）
+ALUSrc    **     1   ALU的第二个操作数为Imm(立即数)；为低电平时，ALU的第二个操作数为rt寄存器中的内容
+RegWrite  **     4   写回的寄存器编码（包括PC，IH），该数据需在ControlUnit中暂存数个周期，可能需要状态机
+ImmLen    **     2   确定立即数的位数，该命令在ALU段使用
+JumpDst   **     2   确定下一个PC的值，该命令在ALU段使用。得到数据旁路的支持后，延迟槽长度减为1
+RAControl JALR   1   RA寄存器的值保持不变。为低电平时，表示当前指令为JALR，需要对RA进行赋值
+CMPControl CMP，CMPI 1 表示当前指令为CMP或CMPI，需要对T标识位进行赋值
+SLTUIControl SLTUI 1 表示当前指令为SLTUI，读取T标识位的内容
+
