@@ -71,3 +71,8 @@ RAControl JALR   1   RA寄存器的值保持不变。为低电平时，表示当
 CMPControl CMP，CMPI 1 表示当前指令为CMP或CMPI，需要对T标识位进行赋值
 SLTUIControl SLTUI 1 表示当前指令为SLTUI，读取T标识位的内容
 
+
+ # 流水线优化纪录 (Hazard Unit)
+1. ALU优化，Forward1E & Forward2E
+2. lw指令优化，Stall & Flush
+
