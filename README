@@ -1,4 +1,4 @@
- # 基本指令集
+S # 基本指令集
 指令名称       指令编码          寄存器        操作说明
 ADDIU   01001|xxx|xxxxxxxx    rs     rs<=rs+Sign_extend(Imm)
 ADDIU3  01000|xxx|xxx|0|xxxx  rs,rt  rt<=rs+Sign_extend(Imm)
@@ -71,8 +71,12 @@ RAControl JALR   1   RA寄存器的值保持不变。为低电平时，表示当
 CMPControl CMP，CMPI 1 表示当前指令为CMP或CMPI，需要对T标识位进行赋值
 SLTUIControl SLTUI 1 表示当前指令为SLTUI，读取T标识位的内容
 
+SPLoad LW_SP,ADDSP,MTSP 1 表示当前指令为LW_SP,ADDSP,MTSP,将Src1置为SP的值
+IHLoad   MTIH    1   表示当前指令为MTIH,将Src1置为IH的值
+DirectJmp B,JALR,JRRA,JR 1 表示当前指令为B,JALR,JRRA,JR，修改PC的值以跳转
+
 
  # 流水线优化纪录 (Hazard Unit)
 1. ALU优化，Forward1E & Forward2E
 2. lw指令优化，Stall & Flush
-
+3. 跳转指令优化，详见%Jump%，若时钟不足以支持所有组合逻辑，请退回到”a59726d修正了有关特殊寄存器的一些错误”版本
