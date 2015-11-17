@@ -67,14 +67,14 @@ ALUOp     **    未定（与ALU数目有关）
 ALUSrc1 **       4   第一个操作数来源
 ALUSrc2   **     4   第二个操作数来源 // 0***表示通用寄存器 1000表示没有 1001表示SP 1010表示IH 1100表示8位立即数  1101 5位 1110 3位 1111 4位
 RegWrite  **     4   写回的寄存器编码（包括PC，IH），该数据需在ControlUnit中暂存数个周期，可能需要状态机
-ImmLen    **     2   确定立即数的位数，该命令在ALU段使用
+//ImmLen    **     2   确定立即数的位数，该命令在ALU段使用
 JumpDst   **     2   确定下一个PC的值，该命令在ALU段使用。得到数据旁路的支持后，延迟槽长度减为1
 RAControl JALR   1   RA寄存器的值保持不变。为低电平时，表示当前指令为JALR，需要对RA进行赋值
 CMPControl CMP，CMPI 1 表示当前指令为CMP或CMPI，需要对T标识位进行赋值
 SLTUIControl SLTUI 1 表示当前指令为SLTUI，读取T标识位的内容
 
-SPLoad LW_SP,ADDSP,MTSP 1 表示当前指令为LW_SP,ADDSP,MTSP,将Src1置为SP的值
-IHLoad   MTIH    1   表示当前指令为MTIH,将Src1置为IH的值
+//SPLoad LW_SP,ADDSP,MTSP 1 表示当前指令为LW_SP,ADDSP,MTSP,将Src1置为SP的值
+//IHLoad   MTIH    1   表示当前指令为MTIH,将Src1置为IH的值
 DirectJmp B,JALR,JRRA,JR 1 表示当前指令为B,JALR,JRRA,JR，修改PC的值以跳转
 
 
