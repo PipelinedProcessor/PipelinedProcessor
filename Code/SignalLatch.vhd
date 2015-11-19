@@ -15,10 +15,14 @@ entity SignalLatch is
 end SignalLatch;
 
 architecture Behavioral of SignalLatch is
+    signal clockTag : STD_LOGIC := '0'; -- 不同模块之间是否能保证其该Tag同步？
 begin
     process(clk)
         if clk'event and clk = '1' then
-            signal_out <= (not rst) and signal_in;
+            if clockTag ＝'0' then
+                signal_out <= (not rst) and signal_in;
+            end if;
+            clockTag <= not clockTag;
         end if;
     end process;
 end Behavioral;

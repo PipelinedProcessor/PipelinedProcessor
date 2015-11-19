@@ -34,7 +34,7 @@ architecture Behavioral of InstructionFetch is
     signal PCPlus4F : STD_LOGIC_VECTOR(15 downto 0);
     signal nextPC : STD_LOGIC_VECTOR(15 downto 0);
 
-    signal clockTag : STD_LOGIC;
+    signal clockTag : STD_LOGIC := '0';
 
 begin
 

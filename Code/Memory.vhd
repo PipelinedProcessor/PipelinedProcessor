@@ -33,7 +33,7 @@ entity Memory is
 end Memory;
 
 architecture Behavioral of Memory is
-	  signal clockTag : STD_LOGIC;
+	  signal clockTag : STD_LOGIC := '0';
 		signal writeSignal : STD_LOGIC;
 		signal readSignal : STD_LOGIC; -- 以上两者为第一个下降沿来临时的信号种类
 
