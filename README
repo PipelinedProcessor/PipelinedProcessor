@@ -1,4 +1,9 @@
-S # 基本指令集
+###################
+所有二进制文件已从github中删除
+请加入 有道云协作 团队 14940581
+###################
+
+# 基本指令集
 指令名称       指令编码          寄存器        操作说明
 ADDIU   01001|xxx|xxxxxxxx    rs     rs<=rs+Sign_extend(Imm)
 ADDIU3  01000|xxx|xxx|0|xxxx  rs,rt  rt<=rs+Sign_extend(Imm)
