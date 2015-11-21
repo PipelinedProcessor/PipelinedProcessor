@@ -10,19 +10,24 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity BufferLatch is
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
+           stall : in STD_LOGIC;
            signal_in : in STD_LOGIC_VECTOR(15 downto 0);
-           signal_out : out STD_LOGIC(15 downto 0);
+           signal_out : out STD_LOGIC_VECTOR(15 downto 0));
 end BufferLatch;
 
 architecture Behavioral of BufferLatch is
-    signal clockTag : STD_LOGIC := '0'; -- 不同模块之间是否能保证其该Tag同步？
+    signal data : STD_LOGIC_VECTOR(15 downto 0); -- 不同模块之间是否能保证其该Tag同步？
 begin
-    process(clk)
-        if clk'event and clk = '1' then
-            if clockTag ＝'0' then
-                signal_out <= (not rst) and signal_in;
-            end if;
-            clockTag <= not clockTag;
+    signal_out <= data when rst = '0'
+                  else (others => '0');
+
+    process(clk, rst)
+    begin
+        if clk'event and clk = '1' and rst = '0' and stall = '0' then
+            data <= signal_in;
+        end if;
+        if rst = '1' then
+            data <= (others => '0');
         end if;
     end process;
 end Behavioral;
