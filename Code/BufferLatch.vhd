@@ -16,18 +16,17 @@ entity BufferLatch is
 end BufferLatch;
 
 architecture Behavioral of BufferLatch is
-    signal data : STD_LOGIC_VECTOR(15 downto 0); -- 不同模块之间是否能保证其该Tag同步？
+    signal data : STD_LOGIC_VECTOR(15 downto 0); -- 不同模块之间是否能保证其该Tag同步�
 begin
-    signal_out <= data when rst = '0'
+    signal_out <= data when rst = '1'
                   else (others => '0');
 
     process(clk, rst)
     begin
-        if clk'event and clk = '1' and rst = '0' and stall = '0' then
-            data <= signal_in;
-        end if;
-        if rst = '1' then
+	     if rst = '0' then
             data <= (others => '0');
+        elsif clk'event and clk = '1' and stall = '0' then
+            data <= signal_in;
         end if;
     end process;
 end Behavioral;

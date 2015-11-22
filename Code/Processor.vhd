@@ -9,9 +9,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity Processor is
     Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC; -- hand_control为1，把写入数据的指针置零
-                                -- hand_control为0，把计算机所有状态置零
-
+           rst : in  STD_LOGIC; -- hand_control�，把写入数据的指针置�                                -- hand_control�，把计算机所有状态置�
            ram1addr : out  STD_LOGIC_VECTOR (17 downto 0);
            ram1data : inout  STD_LOGIC_VECTOR (15 downto 0);
            ram1oe : out  STD_LOGIC;
@@ -23,7 +21,7 @@ entity Processor is
            ram2oe : out  STD_LOGIC;
            ram2we : out  STD_LOGIC;
            ram2en : out  STD_LOGIC;
-           dyp0 : out  STD_LOGIC_VECTOR(6 downto 0)
+           l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Processor;
 
@@ -34,8 +32,7 @@ architecture Behavioral of Processor is
                instr, PCPlus1 : out STD_LOGIC_VECTOR(15 downto 0);
                ram2addr : out  STD_LOGIC_VECTOR (17 downto 0);
                ram2data : inout  STD_LOGIC_VECTOR (15 downto 0);
-               ram2oe, ram2we, ram2en : out  STD_LOGIC;
-               dyp0 : out  STD_LOGIC_VECTOR (6 downto 0)
+               ram2oe, ram2we, ram2en : out  STD_LOGIC
              );
     end component;
     -- cmd in (Command in)
@@ -76,7 +73,9 @@ architecture Behavioral of Processor is
               E_10_0_in: in std_logic_vector(10 downto 0);
         
               RA_out: out std_logic_vector(15 downto 0);
+              SP_out: out std_logic_vector(15 downto 0);
               T_out: out std_logic;
+              RD1_out: out std_logic_vector(15 downto 0);
               regData1: out std_logic_vector(15 downto 0);
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
@@ -94,8 +93,10 @@ architecture Behavioral of Processor is
     -- data out
     signal Src1D : STD_LOGIC_VECTOR(15 downto 0);
     signal Src2D : STD_LOGIC_VECTOR(15 downto 0);
+    signal RxD : STD_LOGIC_VECTOR(15 downto 0);
     signal ImmD : STD_LOGIC_VECTOR(15 downto 0);
     signal RAoutD : STD_LOGIC_VECTOR(15 downto 0);
+    signal SPoutD : STD_LOGIC_VECTOR(15 downto 0);
     signal ToutD : STD_LOGIC;
     signal Imm11D : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
@@ -108,7 +109,8 @@ architecture Behavioral of Processor is
                ImmExtend : out STD_LOGIC;
                ImmLen : out STD_LOGIC_VECTOR (1 downto 0);
                JumpDst : out STD_LOGIC_VECTOR (1 downto 0);
-               RegDst : out STD_LOGIC_VECTOR (3 downto 0)
+               RegDst : out STD_LOGIC_VECTOR (3 downto 0);
+               WriteDataSrc : out STD_LOGIC
              );
     end component;
     -- data in (defined before)
@@ -128,7 +130,7 @@ architecture Behavioral of Processor is
     signal ALUOpD : STD_LOGIC_VECTOR(3 downto 0);
     signal ALUSrc2D : STD_LOGIC;
     signal RegDstD : STD_LOGIC_VECTOR(3 downto 0);
-    signal WriteDataSrcD : STD_LOGIC; -- TODO: ryz not implemented yet
+    signal WriteDataSrcD : STD_LOGIC;
  -- ****** ******
     component REG_ID_EXE is
         Port(
@@ -140,7 +142,7 @@ architecture Behavioral of Processor is
             RegDstD: in std_logic_vector(3 downto 0);
             WriteDataSrcD : in STD_LOGIC;
 
-            regData1D, regData2D, extendDataD: in std_logic_vector(15 downto 0); 
+            regData1D, regData2D, extendDataD, SPoutD, RxD: in std_logic_vector(15 downto 0); 
             
             MemReadE, MemWriteE, Mem2RegE: out std_logic;
             ALUOpE: out std_logic_vector(3 downto 0);
@@ -148,7 +150,7 @@ architecture Behavioral of Processor is
             RegDstE: out std_logic_vector(3 downto 0);
             WriteDataSrcE : out STD_LOGIC;
             
-            regData1E, regData2E, extendDataE: out std_logic_vector(15 downto 0) 
+            regData1E, regData2E, extendDataE, SPoutE, RxE: out std_logic_vector(15 downto 0) 
         );
     end component;
     -- cmd in
@@ -157,6 +159,7 @@ architecture Behavioral of Processor is
     -- signal MemReadD : STD_LOGIC;
     -- signal MemWriteD : STD_LOGIC;
     -- signal Mem2RegD : STD_LOGIC;
+    -- signal 
     -- signal ALUOpD : STD_LOGIC_VECTOR(3 downto 0);
     -- signal ALUSrc2D : STD_LOGIC;
     -- signal RegDstD : STD_LOGIC_VECTOR(3 downto 0);
@@ -170,31 +173,42 @@ architecture Behavioral of Processor is
     signal RegDstE : STD_LOGIC_VECTOR(3 downto 0);
     signal WriteDataSrcE : STD_LOGIC;
     -- data in (defined before)
-    -- signal Src1E : STD_LOGIC_VECTOR(15 downto 0);
-    -- signal Src2E : STD_LOGIC_VECTOR(15 downto 0);
-    -- signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal Src1D : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal Src2D : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal ImmD : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal SPoutD : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal RxD : STD_LOGIC_VECTOR(15 downto 0);
     -- data out
     signal Src1E : STD_LOGIC_VECTOR(15 downto 0);
     signal Src2E : STD_LOGIC_VECTOR(15 downto 0);
     signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
+    signal SPoutE : STD_LOGIC_VECTOR(15 downto 0);
+    signal RxE : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
-    component ALU is
-        port ( A, B: in std_logic_vector (15 downto 0);
+    component EXE is
+        Port ( Rx, imm, Src1, Ry: in std_logic_vector (15 downto 0);
                op: in std_logic_vector(3 downto 0);
-               result: out std_logic_vector(15 downto 0)
+               WriteDataSrc: in std_logic; -- control signal to select which reg to write back to memory
+               ALUSrc2: in std_logic; -- control signal to select if ry or imm is the second source for ALU
+               ALUResult: out std_logic_vector(15 downto 0);
+               WriteData: out std_logic_vector(15 downto 0)
+					--l : out STD_LOGIC_VECTOR(15 downto 0)
              );
     end component;
+
     -- cmd in (define before)
-    -- signal ALUSrc2E : STD_LOGIC; -- TODO: ryz not implemented yet
+    -- signal ALUSrc2E : STD_LOGIC;
     -- signal ALUOpE : STD_LOGIC_VECTOR(3 downto 0);
-    -- signal WriteDataSrcE : STD_LOGIC; -- TODO: ryz not implemented yet
+    -- signal WriteDataSrcE : STD_LOGIC;
     -- data in (defined before)
     -- signal Src1E : STD_LOGIC_VECTOR(15 downto 0);
     -- signal Src2E : STD_LOGIC_VECTOR(15 downto 0);
     -- signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal SPoutE : STD_LOGIC_VECTOR(15 downto 0);
+    -- signal RxE : STD_LOGIC_VECTOR(15 downto 0);
     -- data out
     signal ALUOutE : STD_LOGIC_VECTOR(15 downto 0);
-    signal WriteDataE : STD_LOGIC_VECTOR(15 downto 0); -- TODO: ryz not implemented yet
+    signal WriteDataE : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
     component REG_EXE_MEM is
         Port ( rst, clk, stall: in std_logic;
@@ -282,7 +296,7 @@ begin
     stallF <= '0';
     IFpart : InstructionFetch port map (
                             clk, rst, stallF, InstrF, PCPlus1F,
-                            ram2addr, ram2data, ram2oe, ram2we, ram2en, dyp0);
+                            ram2addr, ram2data, ram2oe, ram2we, ram2en);
 -- ****** IF2ID ******
     stallD <= '0';
     IF2IDpart : REG_IF_ID port map (
@@ -296,27 +310,39 @@ begin
                             RegDstW, RegDstDataW, PCPlus1D,
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
                             InstrD(7 downto 0), InstrD(10 downto 0),
-                            RAoutD, ToutD, Src1D, Src2D, ImmD, Imm11D
+                            RAoutD, SPoutD, ToutD,
+                            RxD, Src1D, Src2D, ImmD, Imm11D
                         );
+	 -- l(15 downto 8) <= Src1D(7 downto 0);
+	 -- l(7 downto 0) <= ImmD(7 downto 0);
     Controlpart : controller port map (
                             InstrD, BranchD, NBranchD, TBranchD, DirectJmpD,
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUSrc1D, ALUSrc2D, ALUOpD,
-                            ImmExtendD, ImmLenD, JumpDstD, RegDstD
+                            ImmExtendD, ImmLenD, JumpDstD, RegDstD, WriteDataSrcD
                         );
+	 -- l(15 downto 12) <= ALUOpD;
+	 -- l(11 downto 10) <= ALUSrc1D;
+	 -- l(9) <= ALUSrc2D;
+	 -- l(8 downto 5) <= RegDstD;
+	 -- l(4 downto 0) <= (others => '0');
 -- ****** ID2EXE ******
     stallE <= '0';
     ID2EXEpart : REG_ID_EXE port map (
                             rst, clk, stallE,
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUOpD, ALUSrc2D, RegDstD, WriteDataSrcD,
-                            Src1D, Src2D, ImmD,
+                            Src1D, Src2D, ImmD, SPoutD, RxD,
                             MemReadE, MemWriteE, Mem2RegE,
                             ALUOpE, ALUSrc2E, RegDstE, WriteDataSrcE,
-                            Src1E, Src2E, ImmE
+                            Src1E, Src2E, ImmE, SPoutE, RxE
                         );
 -- ****** EXE ******
-    ALUpart : ALU port map ( Src1E, Src2E, ALUOpE, ALUOutE );
+    EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
+                             ALUOpE, WriteDataSrcE, ALUSrc2E,
+                             ALUOutE, WriteDataE
+                           );
+	 l <= ALUOutE;
 -- ****** EXE2MEM ******
     stallM <= '0';
     EXE2MEMpart : REG_EXE_MEM port map (

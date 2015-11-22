@@ -68,8 +68,9 @@ entity ID is
 		E_10_0_in: in std_logic_vector(10 downto 0);
 		
 		RA_out: out std_logic_vector(15 downto 0);
-        SP_out: out std_logic_vector(15 downto 0);
+      SP_out: out std_logic_vector(15 downto 0);
 		T_out: out std_logic;
+		RD1_out: out std_logic_vector(15 downto 0);
 		regData1: out std_logic_vector(15 downto 0);
 		regData2: out std_logic_vector(15 downto 0);
 		ExtendChooseOut: out std_logic_vector(15 downto 0);
@@ -157,6 +158,7 @@ architecture Behavioral of ID is
 begin
 	
     SP_out <= SP;
+		RD1_out <= RD1;
     
 	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA_out, T_out);
 	u2: regData1Choose port map(ALUSrc1, IH_out, SP, RD1, PCPlus1, regData1);

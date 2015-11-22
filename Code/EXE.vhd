@@ -30,12 +30,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity EXE is
-	port( ALUOp1, imm, Rx, Ry, Sp: in std_logic_vector (15 downto 0);
+	port( Rx, imm, Src1, Ry: in std_logic_vector (15 downto 0);
 			op: in std_logic_vector(3 downto 0);
 			WriteDataSrc: in std_logic; -- control signal to select which reg to write back to memory
 			ALUSrc2: in std_logic; -- control signal to select if ry or imm is the second source for ALU
 			ALUResult: out std_logic_vector(15 downto 0);
 			WriteData: out std_logic_vector(15 downto 0)
+			--l : out STD_LOGIC_VECTOR(15 downto 0)
 		 );
 end EXE;
 
@@ -46,12 +47,14 @@ architecture Behavioral of EXE is
 			 result: out std_logic_vector(15 downto 0)
 	);
 	end component;
-	signal ALUOp2: std_logic_vector(15 downto 0);
+	signal Src2: std_logic_vector(15 downto 0);
 begin
-	ALUOp2 <= Ry when ALUSrc2 = '0'
+	Src2 <= Ry when ALUSrc2 = '0'
 		else   imm;
-	ALU0 : ALU port map (ALUOp1,ALUOp2,op,ALUResult);
+	--l(15 downto 8) <= Src1(7 downto 0);
+	--l(7 downto 0) <= Src2(7 downto 0);
+	ALU0 : ALU port map (Src1,Src2,op,ALUResult);
 	WriteData <= Rx when WriteDataSrc = '0'
-			else	 Sp;
+			else	 Ry;
 end Behavioral;
 

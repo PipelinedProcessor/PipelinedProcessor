@@ -19,9 +19,8 @@ entity InstructionFetch is
            ram2data : inout  STD_LOGIC_VECTOR (15 downto 0);
            ram2oe : out  STD_LOGIC;
            ram2we : out  STD_LOGIC;
-           ram2en : out  STD_LOGIC;
-
-           dyp0 : out  STD_LOGIC_VECTOR (6 downto 0));
+           ram2en : out  STD_LOGIC
+          );
 
 end InstructionFetch;
 
@@ -48,7 +47,6 @@ begin
     ram2addr(15 downto 0) <= PC; -- pin
 		ram2data <= (others => 'Z');
     instr <= ram2data;
-    dyp0 <= ram2data(6 downto 0);
 
     ram2en <= not rst; -- pin
     ram2oe <= clk; -- pin
