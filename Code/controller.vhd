@@ -44,7 +44,8 @@ entity controller is
 			  ImmExtend : out STD_LOGIC; --set to 0 when zero extend, set to 1 when sign extend
 			  ImmLen : out STD_LOGIC_VECTOR (1 downto 0); --00 -> 3:0 01 -> 4:0 10 -> 4:2 11 -> 8:0
 			  JumpDst : out STD_LOGIC_VECTOR (1 downto 0); --00 -> B 01 -> BNQZ/BTNQZ/BEQZ 10 -> JR 11 -> JRRA
-			  RegDst : out STD_LOGIC_VECTOR (3 downto 0) --(8:15) -> universal reg, 0000 -> None, 0001 -> SP, 0010 -> IH, 0011 -> T, 0100 -> RA
+			  RegDst : out STD_LOGIC_VECTOR (3 downto 0); --(8:15) -> universal reg, 0000 -> None, 0001 -> SP, 0010 -> IH, 0011 -> T, 0100 -> RA
+			  WriteDataSrc : out STD_LOGIC -- 0 -> rx 1 -> sp
 			);
 end controller;
 
@@ -152,5 +153,9 @@ begin
 		else "0100"							when (INST(15 downto 11) = "11101" and INST(7 downto 0) = "11000000") -- JALR
 		else "0000";
 		
+	WriteDataSrc <=
+							'1' when INST(15 downto 11) = "11010"
+					else  '0';
+	
 end Behavioral;
 
