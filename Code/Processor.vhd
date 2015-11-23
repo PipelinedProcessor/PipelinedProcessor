@@ -338,11 +338,12 @@ begin
                             Src1E, Src2E, ImmE, SPoutE, RxE
                         );
 -- ****** EXE ******
+    --l(15 downto 8) <= SPoutE(7 downto 0);
+	 --l(7 downto 0) <= ALUoutE(7 downto 0);
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
                              ALUOpE, WriteDataSrcE, ALUSrc2E,
                              ALUOutE, WriteDataE
                            );
-	 l <= ALUOutE;
 -- ****** EXE2MEM ******
     stallM <= '0';
     EXE2MEMpart : REG_EXE_MEM port map (
@@ -358,6 +359,7 @@ begin
                             ALUOutM, WriteDataM, MemOutM, ram1addr, ram1data,
                             ram1oe, ram1we, ram1en
                         );
+	 l <= WriteDataM(6 downto 0) & MemWriteM & MemReadM & ALUOutM(6 downto 0);
 -- ****** MEM2WB ******
     stallW <= '0';
     MEM2WBpart : REG_MEM_WB port map (

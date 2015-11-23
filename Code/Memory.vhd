@@ -27,19 +27,19 @@ entity Memory is
 
                -- dyp0 : out  STD_LOGIC_VECTOR (6 downto 0)
          );
-
+ 
 end Memory;
 
 architecture Behavioral of Memory is
 begin
     ram1addr(17 downto 16) <= "00"; -- pin
     ram1en <= not rst; -- pin
-    ram1we <= MemWriteM and clk;
-    ram1oe <= MemReadM and clk;
+    ram1we <= not MemWriteM or clk;
+    ram1oe <= not MemReadM or clk;
     ram1addr(15 downto 0) <= ALUOutM;
     ram1data <= WriteDataM when MemWriteM = '1'
-                else (others => 'Z');
-    ReadDataM <= ram1data when rst = '0'
+					 else (others => '0');
+    ReadDataM <= ram1data when rst = '1'
                  else (others => '0');
     -- dyp0 <= ram1data(6 downto 0);
 end Behavioral;

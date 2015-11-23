@@ -54,7 +54,7 @@ begin
 	--l(15 downto 8) <= Src1(7 downto 0);
 	--l(7 downto 0) <= Src2(7 downto 0);
 	ALU0 : ALU port map (Src1,Src2,op,ALUResult);
-	WriteData <= Rx when WriteDataSrc = '0'
-			else	 Ry;
+	WriteData <= Ry when WriteDataSrc = '0'
+			else	 Rx;
 end Behavioral;
 

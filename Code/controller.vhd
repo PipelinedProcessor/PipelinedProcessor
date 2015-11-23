@@ -91,13 +91,14 @@ begin
 			  '0' when (INST(15 downto 11) = "11100") -- ADDU / SUBU
 					or   (INST(15 downto 11) = "11101" and INST(3) = '1') -- AND / CMP / OR
 					or   (INST(15 downto 11) = "01111") -- MOVE
+					or   (INST(15 downto 10) = "011001") -- MTSP
 		else '1';
 	
 	ALUOp <=
 			  "0010" when (INST(15 downto 12) = "0100") -- ADDIU / ADDIU3
 						or   (INST(15 downto 8) = "01100011") -- ADDSP
 						or   (INST(15 downto 11) = "11100" and INST(1) = '0') -- ADDU
-						or   (INST(15) = '1' and INST(13 downto 11) = "010") -- LW_SP / SW_SP
+						or   (INST(15) = '1' and INST(13 downto 12) = "01") -- LW_SP / SW_SP / LW / SW
 		else "0011" when (INST(15 downto 11) = "11100" and INST(1) = '1') -- SUBU
 		else "0101" when (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01010") -- CMP
 						or   (INST(15 downto 11) = "01110") -- CMPI
@@ -106,10 +107,10 @@ begin
 		else "1001" when (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01010") -- OR
 		else "1010" when (INST(15 downto 11) = "00110" and INST(0) = '0') -- SLL
 		else "1011" when (INST(15 downto 11) = "00110" and INST(0) = '1') -- SRA
-		else "1100" when (INST(15 downto 8) = "01100100") -- MTSP
-						or   (INST(15 downto 11) = "11101" and INST(7 downto 0) = "01000000") -- MFPC
+		else "1100" when   (INST(15 downto 11) = "11101" and INST(7 downto 0) = "01000000") -- MFPC
 						or   (INST(15 downto 11) = "11110") -- MFIH / MTIH
 		else "1101" when (INST(15 downto 11) = "01101") -- LI
+						or   (INST(15 downto 8) = "01100100") -- MTSP
 						or   (INST(15 downto 11) = "01111") -- MOVE
 		else "1110" when (INST(15 downto 11) = "11101" and INST(7 downto 0) = "11000000") -- JALR
 		else "0000";
