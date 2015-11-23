@@ -80,7 +80,7 @@ begin
 		'1' when INST(15 downto 12) = "1001"
 		else '0';
 	
-	ALUSrc1 <=
+	SSALUSrc1 <=
 			  "01" when (INST(15 downto 8) = "01100011") -- ADDSP
 					 or   (INST(15) = '1' and INST(13 downto 11) = "010") -- LW_SP / SW_SP 
 		else "10" when (INST(15 downto 11) = "11110" and INST(0) = '0') -- MFIH
@@ -91,6 +91,7 @@ begin
 			  '0' when (INST(15 downto 11) = "11100") -- ADDU / SUBU
 					or   (INST(15 downto 11) = "11101" and INST(3) = '1') -- AND / CMP / OR
 					or   (INST(15 downto 11) = "01111") -- MOVE
+					or   (INST(15 downto 10) = "011001") -- MTSP
 		else '1';
 	
 	ALUOp <=
