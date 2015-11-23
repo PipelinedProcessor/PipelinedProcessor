@@ -38,7 +38,7 @@ begin
     ram1oe <= not MemReadM or clk;
     ram1addr(15 downto 0) <= ALUOutM;
     ram1data <= WriteDataM when MemWriteM = '1'
-					 else (others => '0');
+					 else (others => 'Z');
     ReadDataM <= ram1data when rst = '1'
                  else (others => '0');
     -- dyp0 <= ram1data(6 downto 0);
