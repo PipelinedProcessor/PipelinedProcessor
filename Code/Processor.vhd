@@ -79,7 +79,8 @@ architecture Behavioral of Processor is
               regData1: out std_logic_vector(15 downto 0);
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
-              SE_10_0_out: out std_logic_vector(15 downto 0)     
+              SE_10_0_out: out std_logic_vector(15 downto 0);
+				  l: out std_logic_vector(15 downto 0)
        );
     end component;
     -- cmd in
@@ -290,8 +291,10 @@ architecture Behavioral of Processor is
     -- data out (defined before in ID)
     -- signal RegDstDataW : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
+signal RXOUT: STD_LOGIC_VECTOR(15 downto 0);
 
 begin
+	l<= ALUOutM(3 downto 0) & MemReadM & RegDstM & RXOUT(6 downto 0);
 -- ****** IF ******
     stallF <= '0';
     IFpart : InstructionFetch port map (
@@ -311,7 +314,7 @@ begin
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
                             InstrD(7 downto 0), InstrD(10 downto 0),
                             RAoutD, SPoutD, ToutD,
-                            RxD, Src1D, Src2D, ImmD, Imm11D
+                            RxD, Src1D, Src2D, ImmD, Imm11D, RXOUT
                         );
 	 -- l(15 downto 8) <= Src1D(7 downto 0);
 	 -- l(7 downto 0) <= ImmD(7 downto 0);
@@ -359,7 +362,6 @@ begin
                             ALUOutM, WriteDataM, MemOutM, ram1addr, ram1data,
                             ram1oe, ram1we, ram1en
                         );
-	 l <= WriteDataM(6 downto 0) & MemWriteM & MemReadM & ALUOutM(6 downto 0);
 -- ****** MEM2WB ******
     stallW <= '0';
     MEM2WBpart : REG_MEM_WB port map (

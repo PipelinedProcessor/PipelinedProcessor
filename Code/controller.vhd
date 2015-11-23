@@ -80,7 +80,7 @@ begin
 		'1' when INST(15 downto 12) = "1001"
 		else '0';
 	
-	SSALUSrc1 <=
+	ALUSrc1 <=
 			  "01" when (INST(15 downto 8) = "01100011") -- ADDSP
 					 or   (INST(15) = '1' and INST(13 downto 11) = "010") -- LW_SP / SW_SP 
 		else "10" when (INST(15 downto 11) = "11110" and INST(0) = '0') -- MFIH
@@ -104,19 +104,14 @@ begin
 						or   (INST(15 downto 11) = "01110") -- CMPI
 		else "0110" when (INST(15 downto 11) = "01011") -- SLTUI
 		else "1000" when (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01100") -- AND
-		else "1001" when (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01010") -- OR
+		else "1001" when (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01101") -- OR
 		else "1010" when (INST(15 downto 11) = "00110" and INST(0) = '0') -- SLL
 		else "1011" when (INST(15 downto 11) = "00110" and INST(0) = '1') -- SRA
-<<<<<<< HEAD
 		else "1100" when   (INST(15 downto 11) = "11101" and INST(7 downto 0) = "01000000") -- MFPC
-=======
-		else "1100" when (INST(15 downto 11) = "11101" and INST(7 downto 0) = "01000000") -- MFPC
->>>>>>> 0b897b6233f8fbc01ad6a627c3d1356600deac15
 						or   (INST(15 downto 11) = "11110") -- MFIH / MTIH
 		else "1101" when (INST(15 downto 11) = "01101") -- LI
 						or   (INST(15 downto 8) = "01100100") -- MTSP
 						or   (INST(15 downto 11) = "01111") -- MOVE
-						or	 (INST(15 downto 8) = "01100100") -- MTSP
 		else "1110" when (INST(15 downto 11) = "11101" and INST(7 downto 0) = "11000000") -- JALR
 		else "0000";
 	
@@ -140,8 +135,7 @@ begin
 	
 	RegDst <=
 			  '1' & INST(10 downto 8)  when (INST(15 downto 11) = "01001") -- ADDIU
-												or   (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01100") -- AND
-												or   (INST(15 downto 11) = "11101" and INST(4 downto 0) = "01010") -- OR
+												or   (INST(15 downto 11) = "11101" and INST(4 downto 1) = "0110") -- AND / OR
 												or   (INST(15 downto 11) = "01101") -- LI
 												or   (INST(15 downto 11) = "10010") -- LW_SP
 												or   (INST(15 downto 11) = "11110" and INST(0) = '0') -- MFIH

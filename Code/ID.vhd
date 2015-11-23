@@ -74,7 +74,8 @@ entity ID is
 		regData1: out std_logic_vector(15 downto 0);
 		regData2: out std_logic_vector(15 downto 0);
 		ExtendChooseOut: out std_logic_vector(15 downto 0);
-		SE_10_0_out: out std_logic_vector(15 downto 0)
+		SE_10_0_out: out std_logic_vector(15 downto 0);
+		l: out std_logic_vector(15 downto 0)
 		
 		
 	);
@@ -89,7 +90,8 @@ architecture Behavioral of ID is
 		RegDst: in std_logic_vector(3 downto 0);
 		RegDstData: in std_logic_vector(15 downto 0);
 		RD1, RD2, SP_out, IH_out, RA_out: out std_logic_vector(15 downto 0);
-		T_out: out std_logic
+		T_out: out std_logic;
+		l: out std_logic_vector(15 downto 0)
 	);
 	end component;
 	
@@ -161,7 +163,7 @@ begin
     SP_out <= SP;
 		RD1_out <= RD1;
     
-	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA_out, T_out);
+	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA_out, T_out, l);
 	u2: regData1Choose port map(ALUSrc1, IH_out, SP, RD1, PCPlus1, regData1);
 	
 	u3: SignedExtend port map(E_3_0_in, E_4_0_in, E_4_2_in, E_7_0_in, E_10_0_in, SE_3_0_out, SE_4_0_out, SE_4_2_out, SE_7_0_out, SE_10_0_out);
