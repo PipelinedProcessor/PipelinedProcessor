@@ -329,7 +329,7 @@ begin
 -- ****** Close the serial port ******
     rdn <= '1';
     wrn <= '1';
-    l <= InstrD;
+    l <= ALUOutM(3 downto 0) & MemReadM & RegDstM & MemOutM(15 downto 9);
 -- ****** IF ******
     stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
