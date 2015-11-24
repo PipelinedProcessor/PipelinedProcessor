@@ -35,7 +35,9 @@ entity EXE is
 			WriteDataSrc: in std_logic; -- control signal to select which reg to write back to memory
 			ALUSrc2: in std_logic; -- control signal to select if ry or imm is the second source for ALU
 			ALUResult: out std_logic_vector(15 downto 0);
-			WriteData: out std_logic_vector(15 downto 0)
+			WriteData: out std_logic_vector(15 downto 0);
+			Forward1E, Forward2E: in std_logic_vector(1 downto 0); -- harzard control signal to solve data conflict
+			ALUOutM, RegDstDataW: in std_logic_vector(15 downto 0) 
 			--l : out STD_LOGIC_VECTOR(15 downto 0)
 		 );
 end EXE;
@@ -47,13 +49,18 @@ architecture Behavioral of EXE is
 			 result: out std_logic_vector(15 downto 0)
 	);
 	end component;
-	signal Src2: std_logic_vector(15 downto 0);
+	signal A, B: std_logic_vector(15 downto 0);
 begin
-	Src2 <= Ry when ALUSrc2 = '0'
-		else   imm;
+	B <=	  RegDstDataW when Forward2E(0) = '1'
+		else ALUOutM	  when Forward2E(1) = '1'
+		else Ry 			  when ALUSrc2 = '0'
+		else imm;
+	A <=	  RegDstDataW when Forward2E(0) = '1'
+		else ALUOutM	  when Forward2E(1) = '1'
+		else Src1;
 	--l(15 downto 8) <= Src1(7 downto 0);
 	--l(7 downto 0) <= Src2(7 downto 0);
-	ALU0 : ALU port map (Src1,Src2,op,ALUResult);
+	ALU0 : ALU port map (A,B,op,ALUResult);
 	WriteData <= Ry when WriteDataSrc = '0'
 			else	 Rx;
 end Behavioral;
