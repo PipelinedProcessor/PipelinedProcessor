@@ -34,12 +34,11 @@ architecture Behavioral of Memory is
 begin
     ram1addr(17 downto 16) <= "00"; -- pin
     ram1en <= not rst; -- pin
-    ram1we <= not MemWriteM or clk;
-    ram1oe <= not MemReadM or clk;
+    ram1we <= not MemWriteM and rst;
+    ram1oe <= not MemReadM and rst;
     ram1addr(15 downto 0) <= ALUOutM;
-    ram1data <= WriteDataM when MemWriteM = '1'
-					 else (others => 'Z');
-    ReadDataM <= ram1data when rst = '1'
-                 else (others => '0');
+	  ram1data <= WriteDataM when MemWriteM = '1'
+				    else (others => 'Z');
+    ReadDataM <= ram1data;
     -- dyp0 <= ram1data(6 downto 0);
 end Behavioral;
