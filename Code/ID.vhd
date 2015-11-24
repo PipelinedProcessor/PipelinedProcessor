@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 --rst: 异步清零标志，当检测到rst为0时，所有寄存器清零
 --clk: 主时钟，上升沿写入寄存器
@@ -26,11 +28,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --ALUSrc1: control signal
 --ImmLen: control signal
 --ImmExtend: control signal
+--JumpDst: control signal
 
 --A1：读取的通用寄存器编号
 --A2：读取的通用寄存器编号
 --RegDst：写回的寄存器编号
 --RegDstData：写回的数据
+--PCPlus1: PC+1
 
 --E_3_0_in： 待扩展的立即数输入
 --E_4_0_in： 待扩展的立即数输入
@@ -44,6 +48,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --regData2：送入EXE阶段Src2的寄存器数据，直接取自RD2
 --ExtendChooseOut：经扩展立即数，已经过 控制信号ImmLen、ImmExtend 的筛选
 --SE_10_0_out：E_10_0_in 数据的符号扩展
+--PCBranch: 要跳转的地址
 
 entity ID is
 	port(
@@ -54,6 +59,7 @@ entity ID is
 		ALUSrc1: in std_logic_vector(1 downto 0);
 		ImmLen: in std_logic_vector(1 downto 0);
 		ImmExtend: in std_logic;
+		JumpDst: in std_logic_vector(1 downto 0);
 		
 		A1: in std_logic_vector(2 downto 0);
 		A2: in std_logic_vector(2 downto 0);
@@ -75,7 +81,7 @@ entity ID is
 		regData2: out std_logic_vector(15 downto 0);
 		ExtendChooseOut: out std_logic_vector(15 downto 0);
 		SE_10_0_out: out std_logic_vector(15 downto 0);
-		l: out std_logic_vector(15 downto 0)
+		PCBranch: out std_logic_vector(15 downto 0)
 		
 		
 	);
@@ -90,8 +96,7 @@ architecture Behavioral of ID is
 		RegDst: in std_logic_vector(3 downto 0);
 		RegDstData: in std_logic_vector(15 downto 0);
 		RD1, RD2, SP_out, IH_out, RA_out: out std_logic_vector(15 downto 0);
-		T_out: out std_logic;
-		l: out std_logic_vector(15 downto 0)
+		T_out: out std_logic
 	);
 	end component;
 	
@@ -153,23 +158,44 @@ architecture Behavioral of ID is
 	);
 	end component;
 	
+	component ID_Jump is
+	port(
+		--control sigal
+		JumpDst: in std_logic_vector(1 downto 0);
+		
+		--data
+		SE_7_0: in std_logic_vector(15 downto 0); 
+		SE_10_0: in std_logic_vector(15 downto 0);
+		RD1: in std_logic_vector(15 downto 0);
+		RA: in std_logic_vector(15 downto 0);
+		PCPlus1: in std_logic_vector(15 downto 0);
+		
+		PCBranch: out std_logic_vector(15 downto 0)
+	);
+	end component;
+	
 	signal RD1, SP, IH_out: std_logic_vector(15 downto 0);
 	signal SE_3_0_out, SE_4_0_out, SE_4_2_out, SE_7_0_out: std_logic_vector(15 downto 0); 
 	signal ZE_7_0_out: std_logic_vector(15 downto 0);
 	signal Z_S_7_0_out: std_logic_vector(15 downto 0);
 	
+	signal SE_10_0: std_logic_vector(15 downto 0);
+	signal RA: std_logic_vector(15 downto 0);
 begin
 	
     SP_out <= SP;
-		RD1_out <= RD1;
+	 RD1_out <= RD1;
+	 SE_10_0_out <= SE_10_0;
+	 RA_out <= RA;
     
-	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA_out, T_out, l);
+	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA, T_out);
 	u2: regData1Choose port map(ALUSrc1, IH_out, SP, RD1, PCPlus1, regData1);
 	
-	u3: SignedExtend port map(E_3_0_in, E_4_0_in, E_4_2_in, E_7_0_in, E_10_0_in, SE_3_0_out, SE_4_0_out, SE_4_2_out, SE_7_0_out, SE_10_0_out);
+	u3: SignedExtend port map(E_3_0_in, E_4_0_in, E_4_2_in, E_7_0_in, E_10_0_in, SE_3_0_out, SE_4_0_out, SE_4_2_out, SE_7_0_out, SE_10_0);
 	u4: ZeroExtend port map(E_7_0_in, ZE_7_0_out);
 	u5: ZeroSignedChoose port map(ImmExtend, ZE_7_0_out, SE_7_0_out, Z_S_7_0_out);
 	u6: ExtendChoose port map(ImmLen, SE_3_0_out, SE_4_0_out, SE_4_2_out, Z_S_7_0_out, ExtendChooseOut);
 	
+	u7: ID_Jump port map(JumpDst, SE_7_0_out, SE_10_0, RD1, RA, PCPlus1, PCBranch);
 end Behavioral;
 

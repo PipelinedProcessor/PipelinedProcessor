@@ -7,7 +7,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity InstrFuctionFetch is
+entity InstructionFetch is
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
            -- cmd in
@@ -31,9 +31,9 @@ entity InstrFuctionFetch is
            ram2en : out  STD_LOGIC
           );
 
-end InstrFuctionFetch;
+end InstructionFetch;
 
-architecture Behavioral of InstrFuctionFetch is
+architecture Behavioral of InstructionFetch is
     component BufferLatch is
         Port ( clk, rst, stall : in STD_LOGIC;
                signal_in : in STD_LOGIC_VECTOR(15 downto 0);
@@ -47,8 +47,10 @@ begin
 
     PCPlus1 <= (PC + "1") when rst = '1'
                else (others => '0');
-    nextPC <= PCBranchD when DirectJmpD or (NBranchD and not RxEZD)
-							            or (BranchD and RxEZD) or (TBranchD and ToutD);
+    nextPC <= PCBranchD when DirectJmpD = '1'
+	                       or (NBranchD = '1' and RxEZD = '0')
+							     or (BranchD = '1' and RxEZD = '1')
+								  or (TBranchD = '1' and ToutD = '1')
 						  else PCPlus1;
     PCPlus1F <= PCPlus1; -- out
 

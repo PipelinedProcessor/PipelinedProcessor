@@ -48,8 +48,7 @@ entity reg_controller is
 		RegDst: in std_logic_vector(3 downto 0);
 		RegDstData: in std_logic_vector(15 downto 0);
 		RD1, RD2, SP_out, IH_out, RA_out: out std_logic_vector(15 downto 0);
-		T_out: out std_logic;
-		l: out std_logic_vector(15 downto 0)
+		T_out: out std_logic
 	);
 end reg_controller;
 
@@ -59,8 +58,6 @@ architecture Behavioral of reg_controller is
 	signal T: std_logic;--ÌØÊâ¼Ä´æÆ÷
 	
 begin
-	l <= r0;
-	--¶Á³öRD1
 	with A1 select
 	RD1 <= r0 when "000",
 			 r1 when "001",
