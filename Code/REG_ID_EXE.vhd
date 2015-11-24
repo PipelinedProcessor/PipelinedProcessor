@@ -24,6 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --rst: 异步清零标志，当检测到rst为0时，所有寄存器清零
 --clk: 时钟上升沿更新锁存器
 --stall: 当stall为1时，时钟上升沿锁存器保持原值
+--flush: 当flush为1时，时钟上升沿将所有锁存器清零
 
 --control signal
 --MemRead：
@@ -38,9 +39,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 --regData2: RD2
 --extendData: 符号扩展后的数据
 
+--注：当flush 与 stall 同时为1时，优先执行清零
+
 entity REG_ID_EXE is
     Port(
-        rst, clk, stall: in std_logic;
+        rst, clk, stall, flush: in std_logic;
         --control signal
         MemReadD: in std_logic;
         MemWriteD: in std_logic;
@@ -54,7 +57,10 @@ entity REG_ID_EXE is
         regData2D: in std_logic_vector(15 downto 0); 
         extendDataD: in std_logic_vector(15 downto 0); 
         SPoutD : in STD_LOGIC_VECTOR(15 downto 0);
-				RxD : in STD_LOGIC_VECTOR(15 downto 0);
+		  RxD : in STD_LOGIC_VECTOR(15 downto 0);
+		  Forward1D: in std_logic_vector(1 downto 0);
+		  Forward2D: in std_logic_vector(1 downto 0);
+			
         --control signal
         MemReadE: out std_logic;
         MemWriteE: out std_logic;
@@ -68,7 +74,9 @@ entity REG_ID_EXE is
         regData2E: out std_logic_vector(15 downto 0); 
         extendDataE: out std_logic_vector(15 downto 0);
         SPoutE : out STD_LOGIC_VECTOR(15 downto 0);
-        RxE : out STD_LOGIC_VECTOR(15 downto 0)
+        RxE : out STD_LOGIC_VECTOR(15 downto 0);
+		  Forward1E: out std_logic_vector(1 downto 0);
+		  Forward2E: out std_logic_vector(1 downto 0)
     );
 end entity;
 
@@ -87,7 +95,10 @@ architecture Behavioral of REG_ID_EXE is
     signal regData2: std_logic_vector(15 downto 0); 
     signal extendData: std_logic_vector(15 downto 0); 
     signal SPout : STD_LOGIC_VECTOR(15 downto 0);
-		signal Rx : STD_LOGIC_VECTOR(15 downto 0);
+	 signal Rx : STD_LOGIC_VECTOR(15 downto 0);
+	 signal Forward1: std_logic_vector(1 downto 0);
+	 signal Forward2: std_logic_vector(1 downto 0);
+	 
 begin
     --control signal
     MemReadE <= MemRead;
@@ -103,8 +114,10 @@ begin
     regData2E <= regData2;
     extendDataE <= extendData;
     SPoutE <= SPout;
-		RxE <= Rx;
-    
+	 RxE <= Rx;
+	 Forward1E <= Forward1;
+    Forward2E <= Forward2;
+	 
     process(rst, clk, stall)
     begin
         if rst = '0' then -- 异步清零
@@ -121,9 +134,12 @@ begin
             regData2 <= (others => '0');
             extendData <= (others => '0');
             SPout <= (others => '0');
-						Rx <= (others => '0');
+				Rx <= (others => '0');
+				Forward1 <= (others => '0');
+				Forward2 <= (others => '0');
+				
         elsif rising_edge(clk) then
-            if stall = '0' then
+            if stall = '0' and flush = '0' then	--正常赋值
                 --control signal
                 MemRead <= MemReadD;
                 MemWrite <= MemWriteD;
@@ -139,7 +155,28 @@ begin
                 extendData <= extendDataD;
                 SPout <= SPoutD;
                 Rx <= RxD;
-            else    --doing nothing
+					 Forward1 <= Forward1D;
+					 Forward2 <= Forward2D;
+					 
+				elsif flush = '1' then	--同步清零
+					 --control signal
+					MemRead <= '0';
+					MemWrite <= '0';
+					Mem2Reg <= '0';
+					ALUOp <= (others => '0');
+					ALUSrc2 <= '0';
+					RegDst <= (others => '0');
+					WriteDataSrc <= '0';
+            
+					regData1 <= (others => '0');
+					regData2 <= (others => '0');
+					extendData <= (others => '0');
+					SPout <= (others => '0');
+					Rx <= (others => '0');
+					Forward1 <= (others => '0');
+					Forward2 <= (others => '0');
+							
+            else    						--保持原值
                 --control signal
                 MemRead <= MemRead;
                 MemWrite <= MemWrite;
@@ -154,7 +191,10 @@ begin
                 regData2 <= regData2;
                 extendData <= extendData;
                 SPout <= SPout;
-								Rx <= Rx;
+					 Rx <= Rx;
+					 Forward1 <= Forward1;
+					 Forward2 <= Forward2;
+					 
             end if;
         
         end if;

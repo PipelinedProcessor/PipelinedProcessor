@@ -73,6 +73,13 @@ architecture Behavioral of Processor is
               ImmLen: in std_logic_vector(1 downto 0);
               ImmExtend: in std_logic;
 				  JumpDst: in std_logic_vector(1 downto 0);
+				  --slove conflict
+				  RegDstE: in std_logic_vector(3 downto 0);
+				  RegDstM: in std_logic_vector(3 downto 0);
+				  RegDstW: in std_logic_vector(3 downto 0);
+				  ALUResultE: in std_logic_vector(15 downto 0);
+				  ALUResultM: in std_logic_vector(15 downto 0);
+				  ALUResultW: in std_logic_vector(15 downto 0);
         
               A1: in std_logic_vector(2 downto 0);
               A2: in std_logic_vector(2 downto 0);
@@ -97,6 +104,43 @@ architecture Behavioral of Processor is
 				  PCBranch: out std_logic_vector(15 downto 0)
             );
     end component;
+	 
+    
+	
+	component ForwardUnit is
+		port(
+				RegDstE: in std_logic_vector(3 downto 0);
+				RegDstM: in std_logic_vector(3 downto 0);
+				ALUSrc1: in std_logic_vector(1 downto 0);
+		
+				A1: in std_logic_vector(2 downto 0);
+				A2: in std_logic_vector(2 downto 0);
+		
+				Forward1: out std_logic_vector(1 downto 0);
+				Forward2: out std_logic_vector(1 downto 0)
+			);
+	end component;
+	 
+	 
+	 component HazardUnit is
+			port(
+					--control signal
+					RegDstE: in std_logic_vector(3 downto 0);
+					MemReadE: in std_logic;
+					ALUSrc1: in std_logic_vector(1 downto 0);
+					ALUSrc2: in std_logic;
+					bubble: in std_logic;
+		
+					A1: in std_logic_vector(2 downto 0);
+					A2: in std_logic_vector(2 downto 0);
+	
+					stallF: out std_logic;
+					stallD: out std_logic;
+					FlushE: out std_logic
+				);
+		end component;
+	 
+	 
     -- cmd in
     signal ALUSrc1D: STD_LOGIC_VECTOR(1 downto 0);
     signal ImmLenD: STD_LOGIC_VECTOR(1 downto 0);
@@ -117,6 +161,13 @@ architecture Behavioral of Processor is
     signal RAoutD : STD_LOGIC_VECTOR(15 downto 0);
     signal SPoutD : STD_LOGIC_VECTOR(15 downto 0);
     signal Imm11D : STD_LOGIC_VECTOR(15 downto 0);
+	 
+	 
+	 --hy add
+	 signal FlushE: STD_LOGIC;
+	 signal Forward1D: STD_LOGIC_VECTOR(1 downto 0);
+	 signal Forward2D: STD_LOGIC_VECTOR(1 downto 0);
+	 signal bubble_hy: STD_LOGIC;
  -- ****** ******
     component controller is
         Port ( INST : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -152,7 +203,7 @@ architecture Behavioral of Processor is
  -- ****** ******
     component REG_ID_EXE is
         Port(
-            rst, clk, stall: in std_logic;
+            rst, clk, stall, flush: in std_logic;
 
             MemReadD, MemWriteD, Mem2RegD: in std_logic;
             ALUOpD: in std_logic_vector(3 downto 0);
@@ -161,6 +212,8 @@ architecture Behavioral of Processor is
             WriteDataSrcD : in STD_LOGIC;
 
             regData1D, regData2D, extendDataD, SPoutD, RxD: in std_logic_vector(15 downto 0); 
+				Forward1D: in std_logic_vector(1 downto 0);
+				Forward2D: in std_logic_vector(1 downto 0);
             
             MemReadE, MemWriteE, Mem2RegE: out std_logic;
             ALUOpE: out std_logic_vector(3 downto 0);
@@ -168,7 +221,9 @@ architecture Behavioral of Processor is
             RegDstE: out std_logic_vector(3 downto 0);
             WriteDataSrcE : out STD_LOGIC;
             
-            regData1E, regData2E, extendDataE, SPoutE, RxE: out std_logic_vector(15 downto 0) 
+            regData1E, regData2E, extendDataE, SPoutE, RxE: out std_logic_vector(15 downto 0) ;
+				Forward1E: out std_logic_vector(1 downto 0);
+				Forward2E: out std_logic_vector(1 downto 0)
         );
     end component;
     -- cmd in
@@ -202,6 +257,8 @@ architecture Behavioral of Processor is
     signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
     signal SPoutE : STD_LOGIC_VECTOR(15 downto 0);
     signal RxE : STD_LOGIC_VECTOR(15 downto 0);
+	 signal Forward1E: STD_LOGIC_VECTOR(1 downto 0);
+	 signal Forward2E: STD_LOGIC_VECTOR(1 downto 0);
  -- ****** ******
     component EXE is
         Port ( Rx, imm, Src1, Ry: in std_logic_vector (15 downto 0);
@@ -331,7 +388,7 @@ begin
     wrn <= '1';
     l <= ALUOutM(3 downto 0) & MemReadM & RegDstM & MemOutM(15 downto 9);
 -- ****** IF ******
-    stallF <= '0';
+    --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
              else '0';
     IFpart : InstructionFetch port map (
@@ -341,14 +398,17 @@ begin
                             PCPlus1F, PCF
                         ); 
 -- ****** IF2ID ******
-    stallD <= '0';
+    --stallD <= '0';
     IF2IDpart : REG_IF_ID port map (
                             rst, clk, stallD,
                             InstrF, PCPlus1F, InstrD, PCPlus1D
                         );
 -- ****** ID ******
+
+	--slove conflict
     IDpart : ID port map (  rst, clk,
                             ALUSrc1D, ImmLenD, ImmExtendD, JumpDstD,
+									 RegDstE, RegDstM, RegDstW, ALUOutE, ALUOutM, ALUOutW,
                             InstrD(10 downto 8), InstrD(7 downto 5),
                             RegDstW, RegDstDataW, PCPlus1D,
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
@@ -356,22 +416,39 @@ begin
                             RAoutD, SPoutD, ToutD,
                             RxD, Src1D, Src2D, ImmD, Imm11D, PCBranchD
                         );
+								
     Controlpart : controller port map (
                             InstrD, BranchD, NBranchD, TBranchD, DirectJmpD,
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUSrc1D, ALUSrc2D, ALUOpD,
                             ImmExtendD, ImmLenD, JumpDstD, RegDstD, WriteDataSrcD
                         );
+
+    ForwardUnitpart: ForwardUnit port map (
+							RegDstE, RegDstM, ALUSrc1D, 
+							InstrD(10 downto 8), InstrD(7 downto 5), 
+							Forward1D, Forward2D
+						);
+
+    HazardUnitpart: HazardUnit port map (
+                            RegDstE, MemReadE, ALUSrc1D, ALUSrc2D, bubble_hy,
+									 InstrD(10 downto 8), InstrD(7 downto 5), 
+									 stallF, stallD, FlushE
+                        );
+								
+								
 -- ****** ID2EXE ******
     stallE <= '0';
     ID2EXEpart : REG_ID_EXE port map (
-                            rst, clk, stallE,
+                            rst, clk, stallE, FlushE, 
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUOpD, ALUSrc2D, RegDstD, WriteDataSrcD,
                             Src1D, Src2D, ImmD, SPoutD, RxD,
+									 Forward1D, Forward2D, 
                             MemReadE, MemWriteE, Mem2RegE,
                             ALUOpE, ALUSrc2E, RegDstE, WriteDataSrcE,
-                            Src1E, Src2E, ImmE, SPoutE, RxE
+                            Src1E, Src2E, ImmE, SPoutE, RxE, 
+									 Forward1E, Forward2E
                         );
 -- ****** EXE ******
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
