@@ -93,14 +93,11 @@ architecture Behavioral of Processor is
               E_7_0_in: in std_logic_vector(7 downto 0); 
               E_10_0_in: in std_logic_vector(10 downto 0);
         
-              RA_out: out std_logic_vector(15 downto 0);
-              SP_out: out std_logic_vector(15 downto 0);
               T_out: out std_logic;
               RD1_out: out std_logic_vector(15 downto 0);
               regData1: out std_logic_vector(15 downto 0);
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
-              SE_10_0_out: out std_logic_vector(15 downto 0);
 				  PCBranch: out std_logic_vector(15 downto 0)
             );
     end component;
@@ -158,16 +155,12 @@ architecture Behavioral of Processor is
     signal Src1D : STD_LOGIC_VECTOR(15 downto 0);
     signal Src2D : STD_LOGIC_VECTOR(15 downto 0);
     signal ImmD : STD_LOGIC_VECTOR(15 downto 0);
-    signal RAoutD : STD_LOGIC_VECTOR(15 downto 0);
-    signal SPoutD : STD_LOGIC_VECTOR(15 downto 0);
-    signal Imm11D : STD_LOGIC_VECTOR(15 downto 0);
 	 
 	 
 	 --hy add
 	 signal FlushE: STD_LOGIC;
 	 signal Forward1D: STD_LOGIC_VECTOR(1 downto 0);
 	 signal Forward2D: STD_LOGIC_VECTOR(1 downto 0);
-	 signal bubble_hy: STD_LOGIC;
  -- ****** ******
     component controller is
         Port ( INST : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -211,7 +204,7 @@ architecture Behavioral of Processor is
             RegDstD: in std_logic_vector(3 downto 0);
             WriteDataSrcD : in STD_LOGIC;
 
-            regData1D, regData2D, extendDataD, SPoutD, RxD: in std_logic_vector(15 downto 0); 
+            regData1D, regData2D, extendDataD, RxD: in std_logic_vector(15 downto 0); 
 				Forward1D: in std_logic_vector(1 downto 0);
 				Forward2D: in std_logic_vector(1 downto 0);
             
@@ -221,7 +214,7 @@ architecture Behavioral of Processor is
             RegDstE: out std_logic_vector(3 downto 0);
             WriteDataSrcE : out STD_LOGIC;
             
-            regData1E, regData2E, extendDataE, SPoutE, RxE: out std_logic_vector(15 downto 0) ;
+            regData1E, regData2E, extendDataE, RxE: out std_logic_vector(15 downto 0) ;
 				Forward1E: out std_logic_vector(1 downto 0);
 				Forward2E: out std_logic_vector(1 downto 0)
         );
@@ -255,7 +248,6 @@ architecture Behavioral of Processor is
     signal Src1E : STD_LOGIC_VECTOR(15 downto 0);
     signal Src2E : STD_LOGIC_VECTOR(15 downto 0);
     signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
-    signal SPoutE : STD_LOGIC_VECTOR(15 downto 0);
     signal RxE : STD_LOGIC_VECTOR(15 downto 0);
 	 signal Forward1E: STD_LOGIC_VECTOR(1 downto 0);
 	 signal Forward2E: STD_LOGIC_VECTOR(1 downto 0);
@@ -413,8 +405,8 @@ begin
                             RegDstW, RegDstDataW, PCPlus1D,
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
                             InstrD(7 downto 0), InstrD(10 downto 0),
-                            RAoutD, SPoutD, ToutD,
-                            RxD, Src1D, Src2D, ImmD, Imm11D, PCBranchD
+                            ToutD,
+                            RxD, Src1D, Src2D, ImmD, PCBranchD
                         );
 								
     Controlpart : controller port map (
@@ -431,7 +423,7 @@ begin
 						);
 
     HazardUnitpart: HazardUnit port map (
-                            RegDstE, MemReadE, ALUSrc1D, ALUSrc2D, bubble_hy,
+                            RegDstE, MemReadE, ALUSrc1D, ALUSrc2D, bubble,
 									 InstrD(10 downto 8), InstrD(7 downto 5), 
 									 stallF, stallD, FlushE
                         );
@@ -443,12 +435,12 @@ begin
                             rst, clk, stallE, FlushE, 
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUOpD, ALUSrc2D, RegDstD, WriteDataSrcD,
-                            Src1D, Src2D, ImmD, SPoutD, RxD,
+                            Src1D, Src2D, ImmD, RxD,
 									 Forward1D, Forward2D, 
                             MemReadE, MemWriteE, Mem2RegE,
                             ALUOpE, ALUSrc2E, RegDstE, WriteDataSrcE,
-                            Src1E, Src2E, ImmE, SPoutE, RxE, 
-									 Forward1E, Forward2E
+                            Src1E, Src2E, ImmE, RxE, 
+									 Forward1E,  
                         );
 -- ****** EXE ******
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,

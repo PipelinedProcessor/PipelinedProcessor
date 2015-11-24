@@ -56,7 +56,6 @@ entity REG_ID_EXE is
         regData1D: in std_logic_vector(15 downto 0); 
         regData2D: in std_logic_vector(15 downto 0); 
         extendDataD: in std_logic_vector(15 downto 0); 
-        SPoutD : in STD_LOGIC_VECTOR(15 downto 0);
 		  RxD : in STD_LOGIC_VECTOR(15 downto 0);
 		  Forward1D: in std_logic_vector(1 downto 0);
 		  Forward2D: in std_logic_vector(1 downto 0);
@@ -73,7 +72,6 @@ entity REG_ID_EXE is
         regData1E: out std_logic_vector(15 downto 0); 
         regData2E: out std_logic_vector(15 downto 0); 
         extendDataE: out std_logic_vector(15 downto 0);
-        SPoutE : out STD_LOGIC_VECTOR(15 downto 0);
         RxE : out STD_LOGIC_VECTOR(15 downto 0);
 		  Forward1E: out std_logic_vector(1 downto 0);
 		  Forward2E: out std_logic_vector(1 downto 0)
@@ -94,7 +92,6 @@ architecture Behavioral of REG_ID_EXE is
     signal regData1: std_logic_vector(15 downto 0); 
     signal regData2: std_logic_vector(15 downto 0); 
     signal extendData: std_logic_vector(15 downto 0); 
-    signal SPout : STD_LOGIC_VECTOR(15 downto 0);
 	 signal Rx : STD_LOGIC_VECTOR(15 downto 0);
 	 signal Forward1: std_logic_vector(1 downto 0);
 	 signal Forward2: std_logic_vector(1 downto 0);
@@ -113,7 +110,6 @@ begin
     regData1E <= regData1;
     regData2E <= regData2;
     extendDataE <= extendData;
-    SPoutE <= SPout;
 	 RxE <= Rx;
 	 Forward1E <= Forward1;
     Forward2E <= Forward2;
@@ -133,7 +129,6 @@ begin
             regData1 <= (others => '0');
             regData2 <= (others => '0');
             extendData <= (others => '0');
-            SPout <= (others => '0');
 				Rx <= (others => '0');
 				Forward1 <= (others => '0');
 				Forward2 <= (others => '0');
@@ -153,7 +148,6 @@ begin
                 regData1 <= regData1D;
                 regData2 <= regData2D;
                 extendData <= extendDataD;
-                SPout <= SPoutD;
                 Rx <= RxD;
 					 Forward1 <= Forward1D;
 					 Forward2 <= Forward2D;
@@ -171,7 +165,6 @@ begin
 					regData1 <= (others => '0');
 					regData2 <= (others => '0');
 					extendData <= (others => '0');
-					SPout <= (others => '0');
 					Rx <= (others => '0');
 					Forward1 <= (others => '0');
 					Forward2 <= (others => '0');
@@ -190,7 +183,6 @@ begin
                 regData1 <= regData1;
                 regData2 <= regData2;
                 extendData <= extendData;
-                SPout <= SPout;
 					 Rx <= Rx;
 					 Forward1 <= Forward1;
 					 Forward2 <= Forward2;

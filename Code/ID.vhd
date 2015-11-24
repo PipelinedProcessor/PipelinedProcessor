@@ -80,16 +80,12 @@ entity ID is
 		E_7_0_in: in std_logic_vector(7 downto 0); 
 		E_10_0_in: in std_logic_vector(10 downto 0);
 		
-		RA_out: out std_logic_vector(15 downto 0);
-      SP_out: out std_logic_vector(15 downto 0);
 		T_out: out std_logic;
 		RD1_out: out std_logic_vector(15 downto 0);
 		regData1: out std_logic_vector(15 downto 0);
 		regData2: out std_logic_vector(15 downto 0);
 		ExtendChooseOut: out std_logic_vector(15 downto 0);
-		SE_10_0_out: out std_logic_vector(15 downto 0);
 		PCBranch: out std_logic_vector(15 downto 0)
-		
 		
 	);
 end ID;
@@ -206,9 +202,9 @@ architecture Behavioral of ID is
 		
 		--data
 		T: in std_logic;
-		ALUResultE: in std_logic_vector(15 downto 0);
-		ALUResultM: in std_logic_vector(15 downto 0);
-		ALUResultW: in std_logic_vector(15 downto 0);
+		ALUResultE_0: in std_logic;
+		ALUResultM_0: in std_logic;
+		ALUResultW_0: in std_logic;
 		
 		ChooseT: out std_logic
 	);
@@ -227,10 +223,7 @@ architecture Behavioral of ID is
 	
 begin
 	
-    SP_out <= SP;
 	 RD1_out <= RD1;
-	 SE_10_0_out <= SE_10_0;
-	 RA_out <= ChooseRA;
 	 T_out <= ChooseT;
     
 	u1: reg_controller port map(rst, clk, A1, A2, RegDst, RegDstData, RD1, regData2, SP, IH_out, RA, T);
@@ -244,7 +237,7 @@ begin
 	u7: ID_Jump port map(JumpDst, SE_7_0_out, SE_10_0, RD1, ChooseRA, PCPlus1, PCBranch);
 	
 	u8: ChooseRASource port map(RegDstE, RegDstM, RegDstW, RA, ALUResultE, ALUResultM, ALUResultW, ChooseRA);
-	u9: ChooseTSource port map(RegDstE, RegDstM, RegDstW, T, ALUResultE, ALUResultM, ALUResultW, ChooseT);
+	u9: ChooseTSource port map(RegDstE, RegDstM, RegDstW, T, ALUResultE(0), ALUResultM(0), ALUResultW(0), ChooseT);
 	
 end Behavioral;
 

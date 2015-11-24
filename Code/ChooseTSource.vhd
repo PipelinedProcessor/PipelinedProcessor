@@ -40,9 +40,9 @@ entity ChooseTSource is
 		
 		--data
 		T: in std_logic;
-		ALUResultE: in std_logic_vector(15 downto 0);
-		ALUResultM: in std_logic_vector(15 downto 0);
-		ALUResultW: in std_logic_vector(15 downto 0);
+		ALUResultE_0: in std_logic;
+		ALUResultM_0: in std_logic;
+		ALUResultW_0: in std_logic;
 		
 		ChooseT: out std_logic
 	);
@@ -51,9 +51,9 @@ end ChooseTSource;
 architecture Behavioral of ChooseTSource is
 
 begin
-	ChooseT <= ALUResultE(0) when RegDstE = "0011"	--上条要写T
-		 else	  ALUResultM(0) when RegDstM = "0011"  --上上条要写T
-		 else	  ALUResultW(0) when RegDstW = "0011"  --上上上条要写T
+	ChooseT <= ALUResultE_0 when RegDstE = "0011"	--上条要写T
+		 else	  ALUResultM_0 when RegDstM = "0011"  --上上条要写T
+		 else	  ALUResultW_0 when RegDstW = "0011"  --上上上条要写T
 		 else   T;
 
 end Behavioral;
