@@ -205,8 +205,8 @@ architecture Behavioral of Processor is
             WriteDataSrcD : in STD_LOGIC;
 
             regData1D, regData2D, extendDataD, RxD: in std_logic_vector(15 downto 0); 
-				Forward1D: in std_logic_vector(1 downto 0);
-				Forward2D: in std_logic_vector(1 downto 0);
+				    Forward1D: in std_logic_vector(1 downto 0);
+				    Forward2D: in std_logic_vector(1 downto 0);
             
             MemReadE, MemWriteE, Mem2RegE: out std_logic;
             ALUOpE: out std_logic_vector(3 downto 0);
@@ -258,7 +258,9 @@ architecture Behavioral of Processor is
                WriteDataSrc: in std_logic; -- control signal to select which reg to write back to memory
                ALUSrc2: in std_logic; -- control signal to select if ry or imm is the second source for ALU
                ALUResult: out std_logic_vector(15 downto 0);
-               WriteData: out std_logic_vector(15 downto 0)
+               WriteData: out std_logic_vector(15 downto 0);
+				       Forward1E, Forward2E: in std_logic_vector(1 downto 0); -- harzard control signal to solve data conflict
+			         ALUOutM, RegDstDataW: in std_logic_vector(15 downto 0)
           --l : out STD_LOGIC_VECTOR(15 downto 0)
              );
     end component;
@@ -378,7 +380,7 @@ begin
 -- ****** Close the serial port ******
     rdn <= '1';
     wrn <= '1';
-    l <= ALUOutM(3 downto 0) & MemReadM & RegDstM & MemOutM(15 downto 9);
+    l <= PCF(7 downto 0) & InstrF(7 downto 0);
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -436,16 +438,18 @@ begin
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUOpD, ALUSrc2D, RegDstD, WriteDataSrcD,
                             Src1D, Src2D, ImmD, RxD,
-									 Forward1D, Forward2D, 
+									          Forward1D, Forward2D, 
                             MemReadE, MemWriteE, Mem2RegE,
                             ALUOpE, ALUSrc2E, RegDstE, WriteDataSrcE,
                             Src1E, Src2E, ImmE, RxE, 
-									 Forward1E,  
+														Forward1E, Forward2E
                         );
 -- ****** EXE ******
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
                              ALUOpE, WriteDataSrcE, ALUSrc2E,
-                             ALUOutE, WriteDataE
+                             ALUOutE, WriteDataE,
+														 Forward1E, Forward2E,
+														 ALUOutM, RegDstDataW
                            );
 -- ****** EXE2MEM ******
     stallM <= '0';

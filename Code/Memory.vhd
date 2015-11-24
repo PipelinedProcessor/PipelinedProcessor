@@ -60,19 +60,20 @@ begin
     ram1 : Ram port map (
               clk, rst, readSignal1, writeSignal1,
               addr1, dataIn1, dataOut1,
-              ram2Addr, ram2Data, ram2OE, ram2WE
+              ram1Addr, ram1Data, ram1OE, ram1WE
            ); -- 0x0~0x7FFFF mainly instructions
     ram2 : Ram port map (
               clk, rst, readSignal2, writeSignal2,
               addr2, dataIn2, dataOut2,
-              ram1Addr, ram1Data, ram1OE, ram1WE
+              ram2Addr, ram2Data, ram2OE, ram2WE
            ); -- data
 
-    bubble <= '1' when addrM < X"8000"
+    bubble <= '1' when addrM < X"8000" 
+	                and (writeSignalM = '1' or readSignalM = '1')
               else '0';
 
-    ram2EN <= not rst;
-    ram1EN <= '1' when addrM < X"8000"
+    ram1EN <= not rst;
+    ram2EN <= '1' when addrM < X"8000"
               else not rst;
 
     readSignal1 <= '0' when addrM < X"8000" 

@@ -55,8 +55,8 @@ begin
 		else ALUOutM	  when Forward2E(1) = '1'
 		else Ry 			  when ALUSrc2 = '0'
 		else imm;
-	A <=	  RegDstDataW when Forward2E(0) = '1'
-		else ALUOutM	  when Forward2E(1) = '1'
+	A <=	  RegDstDataW when Forward1E(0) = '1'
+		else ALUOutM	  when Forward1E(1) = '1'
 		else Src1;
 	--l(15 downto 8) <= Src1(7 downto 0);
 	--l(7 downto 0) <= Src2(7 downto 0);
