@@ -12,23 +12,19 @@ entity InstructionFetch is
            rst : in STD_LOGIC;
            -- cmd in
            stallF : in STD_LOGIC;
-		       NBranchD : in STD_LOGIC;
-		       TBranchD : in STD_LOGIC;
-		       BranchD : in STD_LOGIC;
-		       DirectJmpD : in STD_LOGIC;
-		       -- data in
-		       ToutD : in STD_LOGIC;
-		       RxEZD : in STD_LOGIC; -- rx = '0' in ID part
-		       PCBranchD : in STD_LOGIC_VECTOR(15 downto 0);
+		     NBranchD : in STD_LOGIC;
+		     TBranchD : in STD_LOGIC;
+		     BranchD : in STD_LOGIC;
+		     DirectJmpD : in STD_LOGIC;
+		     -- data in
+  	        ToutD : in STD_LOGIC;
+	        RxEZD : in STD_LOGIC; -- rx = '0' in ID part
+		     PCBranchD : in STD_LOGIC_VECTOR(15 downto 0);
            -- data out
-           InstrF : out STD_LOGIC_VECTOR(15 downto 0);
            PCPlus1F : out STD_LOGIC_VECTOR(15 downto 0);
-          
-           ram2addr : out  STD_LOGIC_VECTOR (17 downto 0);
-           ram2data : inout  STD_LOGIC_VECTOR (15 downto 0);
-           ram2oe : out  STD_LOGIC;
-           ram2we : out  STD_LOGIC;
-           ram2en : out  STD_LOGIC
+         
+		     -- for Memory Unit
+			  PCF : out STD_LOGIC_VECTOR(15 downto 0)
           );
 
 end InstructionFetch;
@@ -51,17 +47,10 @@ begin
 	                       or (NBranchD = '1' and RxEZD = '0')
 							     or (BranchD = '1' and RxEZD = '1')
 								  or (TBranchD = '1' and ToutD = '1')
-						  else PCPlus1;
+								  else PCPlus1;
+
     PCPlus1F <= PCPlus1; -- out
+    PCF <= PC; -- out
 
     L0: BufferLatch port map(clk, rst, stallF, nextPC, PC);
-
-    ram2addr(17 downto 16) <= "00"; -- pin
-    ram2addr(15 downto 0) <= PC; -- pin
-		ram2data <= (others => 'Z');
-    InstrF <= ram2data;
-
-    ram2en <= not rst; -- pin
-    ram2oe <= clk; -- pin
-    ram2we <= '1'; -- pin
 end Behavioral;

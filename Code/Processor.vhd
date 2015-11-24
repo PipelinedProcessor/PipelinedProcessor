@@ -9,7 +9,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity Processor is
     Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC; -- hand_control�，把写入数据的指针置�                                -- hand_control�，把计算机所有状态置�
+           rst : in  STD_LOGIC;
            ram1addr : out  STD_LOGIC_VECTOR (17 downto 0);
            ram1data : inout  STD_LOGIC_VECTOR (15 downto 0);
            ram1oe : out  STD_LOGIC;
@@ -31,15 +31,13 @@ end Processor;
 
 architecture Behavioral of Processor is
  -- ****** ******
-    component InstructionFetch is
+   component InstructionFetch is
         Port ( clk, rst, stallF : in STD_LOGIC;
-				   NBranchD, TBranchD, BranchD, DirectJmpD : in STD_LOGIC;
-			      ToutD, RxEZD : in STD_LOGIC;
-	            PCBranchD : in STD_LOGIC_VECTOR(15 downto 0);
-               InstrF, PCPlus1F : out STD_LOGIC_VECTOR(15 downto 0);
-               ram2addr : out  STD_LOGIC_VECTOR (17 downto 0);
-               ram2data : inout  STD_LOGIC_VECTOR (15 downto 0);
-               ram2oe, ram2we, ram2en : out  STD_LOGIC
+               NBranchD, TBranchD, BranchD, DirectJmpD : in STD_LOGIC;
+               ToutD, RxEZD : in STD_LOGIC;
+               PCBranchD : in STD_LOGIC_VECTOR(15 downto 0);
+               PCPlus1F : out STD_LOGIC_VECTOR(15 downto 0);
+               PCF : out STD_LOGIC_VECTOR(15 downto 0)
              );
     end component;
     -- cmd in (Command in)
@@ -53,6 +51,8 @@ architecture Behavioral of Processor is
     -- data out
     signal InstrF : STD_LOGIC_VECTOR(15 downto 0);
     signal PCPlus1F : STD_LOGIC_VECTOR(15 downto 0);
+      -- for Memory Unit
+    signal PCF : STD_LOGIC_VECTOR(15 downto 0); 
  -- ****** ******
     component REG_IF_ID is
         Port ( rst, clk, stall: in std_logic;
@@ -72,7 +72,7 @@ architecture Behavioral of Processor is
               ALUSrc1: in std_logic_vector(1 downto 0);
               ImmLen: in std_logic_vector(1 downto 0);
               ImmExtend: in std_logic;
-				      JumpDst: in std_logic_vector(1 downto 0);
+				  JumpDst: in std_logic_vector(1 downto 0);
         
               A1: in std_logic_vector(2 downto 0);
               A2: in std_logic_vector(2 downto 0);
@@ -94,7 +94,7 @@ architecture Behavioral of Processor is
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
               SE_10_0_out: out std_logic_vector(15 downto 0);
-				      PCBranch: out std_logic_vector(15 downto 0)
+				  PCBranch: out std_logic_vector(15 downto 0)
             );
     end component;
     -- cmd in
@@ -256,20 +256,37 @@ architecture Behavioral of Processor is
     signal ALUOutM, WriteDataM : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
     component Memory is
-        Port ( clk, rst, MemReadM, MemWriteM : in STD_LOGIC;
-               ALUOutM, WriteDataM : in STD_LOGIC_VECTOR(15 downto 0);
-               ReadDataM : out STD_LOGIC_VECTOR(15 downto 0);
-               ram1addr : out  STD_LOGIC_VECTOR (17 downto 0);
-               ram1data : inout  STD_LOGIC_VECTOR (15 downto 0);
-               ram1oe, ram1we, ram1en : out  STD_LOGIC
-             );
-    end component;
-    -- cmd in (defined before)
-    -- signal MemReadM, MemWriteM : STD_LOGIC;
-    -- data in (defined before)
-    -- signal ALUOutM, WriteDataM : STD_LOGIC_VECTOR(15 downto 0);
-    -- data out
-    signal MemOutM : STD_LOGIC_VECTOR(15 downto 0);
+        Port ( clk, rst : in  STD_LOGIC;
+               addrF : in  STD_LOGIC_VECTOR(15 downto 0);
+               instrF : out  STD_LOGIC_VECTOR(15 downto 0);
+               readSignalM, writeSignalM : in  STD_LOGIC; 
+               addrM : in  STD_LOGIC_VECTOR(15 downto 0);
+               dataInM : in  STD_LOGIC_VECTOR(15 downto 0);
+               dataOutM : out  STD_LOGIC_VECTOR(15 downto 0);
+               ram1Addr : out  STD_LOGIC_VECTOR (17 downto 0);
+               ram1Data : inout  STD_LOGIC_VECTOR (15 downto 0);
+               ram1OE, ram1WE, ram1EN : out  STD_LOGIC;     
+               ram2Addr : out  STD_LOGIC_VECTOR (17 downto 0);
+               ram2Data : inout  STD_LOGIC_VECTOR (15 downto 0);
+               ram2OE, ram2WE, ram2EN : out  STD_LOGIC;
+               bubble : out  STD_LOGIC
+            );
+    end component;	
+    -- cmd in (MEM part)
+    -- signal readSignalM(MemReadM), writeSignalM(MemWriteM) : in  STD_LOGIC;
+    -- cmd out
+    signal bubble : STD_LOGIC;
+    -- data in
+      -- for IF part
+      -- signal addrF(PCF) : STD_LOGIC_VECTOR(15 downto 0);
+      -- for MEM part
+      -- signal addrM(ALUOutM) : in  STD_LOGIC_VECTOR(15 downto 0);
+      -- signal dataInM(WriteDataM) : in  STD_LOGIC_VECTOR(15 downto 0); 
+	 -- data out
+      -- for IF part 
+      -- signal instrF(InstrF) : out  STD_LOGIC_VECTOR(15 downto 0);
+      -- for MEM part (dataOutM)
+      signal MemOutM : STD_LOGIC_VECTOR(15 downto 0); 
  -- ****** ******
     component REG_MEM_WB is
         Port ( rst, clk, stall: in std_logic;
@@ -310,19 +327,19 @@ architecture Behavioral of Processor is
  -- ****** ******
 begin
 -- ****** Close the serial port ******
-  rdn <= '1';
-  wrn <= '1';
-  l <= InstrD;
+    rdn <= '1';
+    wrn <= '1';
+    l <= InstrD;
 -- ****** IF ******
     stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
              else '0';
     IFpart : InstructionFetch port map (
                             clk, rst, stallF,
-									 NBranchD, TBranchD, BranchD, DirectJmpD,
-									 ToutD, RxEZD, PCBranchD,
-									 InstrF, PCPlus1F,
-                            ram2addr, ram2data, ram2oe, ram2we, ram2en);
+                            NBranchD, TBranchD, BranchD, DirectJmpD,
+                            ToutD, RxEZD, PCBranchD,
+                            PCPlus1F, PCF
+                        ); 
 -- ****** IF2ID ******
     stallD <= '0';
     IF2IDpart : REG_IF_ID port map (
@@ -372,9 +389,13 @@ begin
                         );
 -- ****** Mem ******
     Mempart : Memory port map (
-                            clk, rst, MemReadM, MemWriteM,
-                            ALUOutM, WriteDataM, MemOutM, ram1addr, ram1data,
-                            ram1oe, ram1we, ram1en
+                            clk, rst, 
+                            PCF, InstrF,
+                            MemReadM, MemWriteM,
+                            ALUOutM, WriteDataM, MemOutM,
+                            ram1addr, ram1data, ram1oe, ram1we, ram1en,
+                            ram2addr, ram2data, ram2oe, ram2we, ram2en,
+                            bubble
                         );
 -- ****** MEM2WB ******
     stallW <= '0';
