@@ -102,4 +102,4 @@ DirectJmp B,JALR,JRRA,JR 1 表示当前指令为B,JALR,JRRA,JR，修改PC的值�
 数据通路主要修改
 1. 将Hazard Unit拆分为Hazard和Forwarding，分别负责气泡和数据旁路
 2. 将IF和MEM段的内存读写统一处理
-3. T和RA的数据旁路表现为4选1
+3. T和RA的数据旁路表现为4选1 
