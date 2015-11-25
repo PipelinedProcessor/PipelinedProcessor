@@ -61,41 +61,45 @@ begin
               clk, rst, readSignal1, writeSignal1,
               addr1, dataIn1, dataOut1,
               ram1Addr, ram1Data, ram1OE, ram1WE
-           ); -- 0x0~0x7FFFF mainly instructions
+           ); -- 0x8000 - ? data
     ram2 : Ram port map (
               clk, rst, readSignal2, writeSignal2,
               addr2, dataIn2, dataOut2,
               ram2Addr, ram2Data, ram2OE, ram2WE
-           ); -- data
+           ); -- 0x0 - 0x7FFF instructions
 
     bubble <= '1' when addrM < X"8000" 
 	                and (writeSignalM = '1' or readSignalM = '1')
               else '0';
 
+    -- 对SRAM进行读写时，若地址大于等于0x8000，从RAM1中读取，RAM2均选else项
+	 -- 若地址小于0x8000，从RAM2中读取，RAM2均选when项
+	 -- 地址0xBF00和0xBF0F保留给接口使用
+
     ram1EN <= not rst;
     ram2EN <= '1' when addrM < X"8000"
               else not rst;
 
-    readSignal1 <= '0' when addrM < X"8000" 
+    readSignal1 <= readSignalM;
+    readSignal2 <= '0' when addrM < X"8000" 
 	                     and writeSignalM = '1'
                    else '1';
-    readSignal2 <= readSignalM;
 
-    writeSignal1 <= '1' when addrM < X"8000"
+    writeSignal1 <= writeSignalM;
+    writeSignal2 <= '1' when addrM < X"8000"
 	                      and writeSignalM = '1'
                     else '0';
-    writeSignal2 <= writeSignalM;
-
-    addr1 <= addrM when addrM < X"8000"
+    
+    addr1 <= addrM;
+    addr2 <= addrM when addrM < X"8000"
 	                 and (readSignalM = '1' or writeSignalM = '1')
              else addrF;
-    addr2 <= addrM;
-
+    
     dataIn1 <= dataInM;
     dataIn2 <= dataInM;
-
-    instrF <= dataOut1;
-    dataOutM <= dataOut1 when addrM < X"8000"
+    
+    instrF <= dataOut2;
+    dataOutM <= dataOut2 when addrM < X"8000"
 	                       and readSignalM = '1'
-                else dataOut2;
+                else dataOut1;
 end Behavioral;
