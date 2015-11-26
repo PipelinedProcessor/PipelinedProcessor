@@ -325,7 +325,8 @@ architecture Behavioral of Processor is
 					ComRdn, ComWrn : out STD_LOGIC;
 					ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
 					
-               bubble : out  STD_LOGIC
+               bubble : out  STD_LOGIC;
+					l : out  STD_LOGIC_VECTOR
             );
     end component;	
     -- cmd in (MEM part)
@@ -382,7 +383,7 @@ architecture Behavioral of Processor is
     -- signal RegDstDataW : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
 begin
-    --l <= PCF(7 downto 0) & InstrF(7 downto 0);
+    --l <= PCF(7 downto 0) & ALUOutM(15 downto 8);
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -455,7 +456,7 @@ begin
 														 ALUOutM, RegDstDataW
                            );
 -- ****** EXE2MEM ******
-	 l <= ALUOutM;
+	 --l <= ALUOutM;
     stallM <= '0';
     EXE2MEMpart : REG_EXE_MEM port map (
                             rst, clk, stallM,
@@ -476,7 +477,7 @@ begin
 									 rdn,wrn,
 									 ComdataReady, ComTbre, ComTsre,
 									 
-                            bubble
+                            bubble, l
                         );
 -- ****** MEM2WB ******
     stallW <= '0';

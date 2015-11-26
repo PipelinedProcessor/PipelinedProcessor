@@ -38,7 +38,8 @@ entity Memory is
            ComRdn, ComWrn : out STD_LOGIC;
            ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
         
-           bubble : out  STD_LOGIC
+           bubble : out  STD_LOGIC;
+			  l : out  STD_LOGIC_VECTOR
          );
 end Memory;
 
@@ -84,7 +85,7 @@ begin
     ram1 : Ram port map (
               clk, rst, readSignal1, writeSignal1,
               addr1, dataOut1,
-              ram1Addr, ram1data, ram1OE, ram1WE
+              ram1Addr, ram1Data, ram1OE, ram1WE
            );
     ram1data <= "ZZZZZZZZ" & dataInC when writeSignalC = '1'
                 else dataIn1 when writeSignal1 = '1'
@@ -93,7 +94,7 @@ begin
     ram2 : Ram port map (
               clk, rst, readSignal2, writeSignal2,
               addr2, dataOut2,
-              ram2Addr, ram1data, ram2OE, ram2WE
+              ram2Addr, ram2Data, ram2OE, ram2WE
            );
     ram2Data <= dataIn2 when writeSignal2 = '1'
                 else (others => 'Z');
@@ -103,6 +104,7 @@ begin
               readSignalC, writeSignalC, dataOutC, -- dataInC,
               ComRdn, ComWrn, ComdataReady, ComTbre, ComTsre
            );
+	 l <= addrF(15) & addrM(15 downto 10) & readSignal1 & readSignalC & dataOutC(6 downto 0);
 
     
     bubble <= '1' when addrM(15) = '0' 
@@ -111,7 +113,7 @@ begin
 
     ram1EN <= '1' when rst = '0' or addrM(15 downto 4) = "101111110000"
               else '0';    
-    ram2EN <= '1' when addrM(15) = '0'
+    ram2EN <= '1' when addrM(15) = '0' and (readSignalM = '1' or writeSignalM = '1')
               else not rst;
     
     readSignal1 <= '0' when writeSignalM = '1' 
@@ -135,15 +137,15 @@ begin
                          and addrM(15 downto 1) = "101111110000000"
                     else '0';
           
-    addr1 <= addrM when addrM(15) = '0'
+    addr2 <= addrM when addrM(15) = '0'
                     and (readSignalM = '1' or writeSignalM = '1')
              else addrF;
-    addr2 <= addrM;
+    addr1 <= addrM;
    
     dataIn1 <= dataInM;
     dataIn2 <= dataInM;
     dataInC <= dataInM(7 downto 0);
-    instrF <= dataOut1;
+    instrF <= dataOut2;
     dataOutM <= dataOut2 when addrM(15) = '0' and readSignalM = '1'
                 else "00000000" & dataOutC when addrM(15 downto 4) = "101111110000" and readSignalM = '1'
                 else dataOut1;
