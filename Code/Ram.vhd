@@ -15,11 +15,12 @@ entity Ram is
            writeSignal : in STD_LOGIC;
          -- data 
            addr : in STD_LOGIC_VECTOR(15 downto 0);
-           dataIn : in STD_LOGIC_VECTOR(15 downto 0);
+           -- dataIn : in STD_LOGIC_VECTOR(15 downto 0);
            dataOut : out STD_LOGIC_VECTOR(15 downto 0);
          -- pins
            ramAddr : out  STD_LOGIC_VECTOR (17 downto 0);
-           ramData : inout  STD_LOGIC_VECTOR (15 downto 0);
+           ramData : in  STD_LOGIC_VECTOR (15 downto 0);
+        -- ramData : inout  STD_LOGIC_VECTOR (15 downto 0);
            ramOE : out  STD_LOGIC;
            ramWE : out  STD_LOGIC
          );
@@ -28,8 +29,6 @@ end Ram;
 architecture Behavioral of Ram is
 begin
     ramAddr <= "00" & addr;
-    ramData <= dataIn when writeSignal = '1'
-               else (others => 'Z');
     ramWE <= not writeSignal or clk;
     ramOE <= not readSignal or clk;
     dataOut <= ramData when rst = '1'

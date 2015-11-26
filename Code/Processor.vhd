@@ -321,8 +321,10 @@ architecture Behavioral of Processor is
                ram2Addr : out  STD_LOGIC_VECTOR (17 downto 0);
                ram2Data : inout  STD_LOGIC_VECTOR (15 downto 0);
                ram2OE, ram2WE, ram2EN : out  STD_LOGIC;
+					
 					ComRdn, ComWrn : out STD_LOGIC;
 					ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
+					
                bubble : out  STD_LOGIC
             );
     end component;	
@@ -470,8 +472,10 @@ begin
                             ALUOutM, WriteDataM, MemOutM,
                             ram1addr, ram1data, ram1oe, ram1we, ram1en,
                             ram2addr, ram2data, ram2oe, ram2we, ram2en,
+									 
 									 rdn,wrn,
 									 ComdataReady, ComTbre, ComTsre,
+									 
                             bubble
                         );
 -- ****** MEM2WB ******

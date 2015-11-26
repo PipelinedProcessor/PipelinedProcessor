@@ -32,14 +32,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity COM is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
-           BusData : inout  STD_LOGIC_VECTOR (7 downto 0);
+           BusData : in  STD_LOGIC_VECTOR (7 downto 0);
+           -- BusData : inout  STD_LOGIC_VECTOR (7 downto 0);
            ComAddr : in  STD_LOGIC;
            ComreadSignal : in  STD_LOGIC;
            ComwriteSignal : in  STD_LOGIC;
            ComRdata : out  STD_LOGIC_VECTOR (7 downto 0);
-           ComWdata : in  STD_LOGIC_VECTOR (7 downto 0);
+           -- ComWdata : in  STD_LOGIC_VECTOR (7 downto 0);
            ComRdn : out  STD_LOGIC;
-			  ComWrn : out  STD_LOGIC;
+           ComWrn : out  STD_LOGIC;
            ComdataReady : in  STD_LOGIC;
            ComTbre : in  STD_LOGIC;
            ComTsre : in  STD_LOGIC);
@@ -48,13 +49,11 @@ end COM;
 architecture Behavioral of COM is
 
 begin
-	ComRdn <= not ComreadSignal or clk;
-	ComWrn <= not ComwriteSignal or clk;
-	ComRData <= (others => '0') when ComreadSignal = '0' or rst = '0'
-			else  "000000" & ComdataReady & (ComTbre and ComTsre) when ComAddr = '1'
-			else  BusData;
-	BusData <= (others => 'Z') when ComwriteSignal = '0'
-			else ComWdata;
+    ComRdn <= not ComreadSignal or clk;
+    ComWrn <= not ComwriteSignal or clk;
+    ComRData <= (others => '0') when ComreadSignal = '0' or rst = '0'
+                else  "000000" & ComdataReady & (ComTbre and ComTsre) when ComAddr = '1'
+                else  BusData;
 
 end Behavioral;
 
