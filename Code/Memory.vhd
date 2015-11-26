@@ -34,7 +34,10 @@ entity Memory is
            ram2OE : out  STD_LOGIC;
            ram2WE : out  STD_LOGIC;
            ram2EN : out  STD_LOGIC;
-
+			  
+			  ComRdn, ComWrn : out STD_LOGIC;
+			  ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
+			  
            bubble : out  STD_LOGIC
          );
 end Memory;
@@ -50,56 +53,94 @@ architecture Behavioral of Memory is
                ramOE, ramWE : out  STD_LOGIC
              );
     end component;
+	 
+	 component COM is
+			port ( clk : in  STD_LOGIC;
+					 rst : in  STD_LOGIC;
+				    BusData : inout  STD_LOGIC_VECTOR (7 downto 0);
+				    ComAddr : in  STD_LOGIC;
+				    ComreadSignal : in  STD_LOGIC;
+				    ComwriteSignal : in  STD_LOGIC;
+				    ComRdata : out  STD_LOGIC_VECTOR (7 downto 0);
+				    ComWdata : in  STD_LOGIC_VECTOR (7 downto 0);
+				    ComRdn : out  STD_LOGIC;
+				    ComWrn : out  STD_LOGIC;
+				    ComdataReady : in  STD_LOGIC;
+				    ComTbre : in  STD_LOGIC;
+				    ComTsre : in  STD_LOGIC
+					);
+	 end component;
 
-    signal readSignal1, readSignal2 : STD_LOGIC;
-    signal writeSignal1, writeSignal2 : STD_LOGIC; 
+    signal readSignal1, readSignal2, readSignalC : STD_LOGIC;
+    signal writeSignal1, writeSignal2, writeSignalC : STD_LOGIC; 
     signal addr1, addr2 : STD_LOGIC_VECTOR(15 downto 0);
     signal dataIn1, dataIn2 : STD_LOGIC_VECTOR(15 downto 0);
     signal dataOut1, dataOut2 : STD_LOGIC_VECTOR(15 downto 0); 
+	 signal dataInC, dataOutC : STD_LOGIC_VECTOR(7 downto 0);
 begin
     ram1 : Ram port map (
               clk, rst, readSignal1, writeSignal1,
               addr1, dataIn1, dataOut1,
               ram1Addr, ram1Data, ram1OE, ram1WE
-           ); -- 0x8000 - ? data
+           );
     ram2 : Ram port map (
               clk, rst, readSignal2, writeSignal2,
               addr2, dataIn2, dataOut2,
               ram2Addr, ram2Data, ram2OE, ram2WE
-           ); -- 0x0 - 0x7FFF instructions
-
-    bubble <= '1' when addrM < X"8000" 
+           );
+	 
+	 com1 : Com port map (
+				  clk, rst, ram1Data(7 downto 0), dataInM(0), 
+				  readSignalC, writeSignalC, dataOutC, dataInC,
+				  ComRdn, ComWrn, ComdataReady, ComTbre, ComTsre
+	 );
+	 
+    bubble <= '1' when addrM(15) = '0' 
 	                and (writeSignalM = '1' or readSignalM = '1')
               else '0';
 
-    -- 对SRAM进行读写时，若地址大于等于0x8000，从RAM1中读取，RAM2均选else项
-	 -- 若地址小于0x8000，从RAM2中读取，RAM2均选when项
-	 -- 地址0xBF00和0xBF0F保留给接口使用
-
-    ram1EN <= not rst;
-    ram2EN <= '1' when addrM < X"8000"
+    ram1EN <= '1' when rst = '0' or addrM(15 downto 4) = "101111110000"
+			else '0';
+			
+	 ram2EN <= '1' when addrM(15) = '0'
               else not rst;
-
-    readSignal1 <= readSignalM;
-    readSignal2 <= '0' when addrM < X"8000" 
+    
+    readSignal1 <= '0' when writeSignalM = '1' 
+								 or addrM(15 downto 4) = "101111110000"
+				else   '1';
+    
+	 readSignal2 <= '0' when addrM(15) = '0' 
 	                     and writeSignalM = '1'
                    else '1';
+	 
+	 readSignalC <= '1' when readSignalM = '1'
+								and addrM(15 downto 1) = "101111110000000"
+				else	 '0';
 
-    writeSignal1 <= writeSignalM;
-    writeSignal2 <= '1' when addrM < X"8000"
+	 
+    writeSignal1 <= '0' when addrM(15) = '0'
+								or writeSignalM = '0'
+								or addrM(15 downto 4) = "101111110000"
+					else '1';
+	 
+	 writeSignal2 <= '1' when addrM(15) = '0'
 	                      and writeSignalM = '1'
                     else '0';
     
-    addr1 <= addrM;
-    addr2 <= addrM when addrM < X"8000"
+	 writeSignalC <= '1' when writeSignalM = '1'
+								 and addrM(15 downto 1) = "101111110000000"
+					else '0';
+
+    addr1 <= addrM when addrM(15) = '0'
 	                 and (readSignalM = '1' or writeSignalM = '1')
              else addrF;
-    
+    addr2 <= addrM;
+	 
     dataIn1 <= dataInM;
     dataIn2 <= dataInM;
-    
-    instrF <= dataOut2;
-    dataOutM <= dataOut2 when addrM < X"8000"
-	                       and readSignalM = '1'
-                else dataOut1;
+	 dataInC <= dataInM(7 downto 0);
+    instrF <= dataOut1;
+    dataOutM <= dataOut2 when addrM(15) = '0' and readSignalM = '1'
+           else "00000000" & dataOutC when addrM(15 downto 4) = "101111110000" and readSignalM = '1'
+			  else dataOut1;
 end Behavioral;

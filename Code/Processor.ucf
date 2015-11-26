@@ -1,5 +1,4 @@
 
-# PlanAhead Generated physical constraints 
 
 NET "l[0]" LOC = D10;
 NET "l[1]" LOC = E10;
@@ -95,3 +94,9 @@ NET "ram2oe" LOC = R9;
 NET "ram2we" LOC = M9;
 NET "rdn" LOC = C14;
 NET "wrn" LOC = U5;
+
+# PlanAhead Generated physical constraints 
+
+NET "ComdataReady" LOC = A16;
+NET "ComTbre" LOC = D14;
+NET "ComTsre" LOC = N9;

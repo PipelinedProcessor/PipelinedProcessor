@@ -24,6 +24,7 @@ entity Processor is
 
            rdn : out STD_LOGIC;
            wrn : out STD_LOGIC;
+			  ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
 
            l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
@@ -320,6 +321,8 @@ architecture Behavioral of Processor is
                ram2Addr : out  STD_LOGIC_VECTOR (17 downto 0);
                ram2Data : inout  STD_LOGIC_VECTOR (15 downto 0);
                ram2OE, ram2WE, ram2EN : out  STD_LOGIC;
+					ComRdn, ComWrn : out STD_LOGIC;
+					ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
                bubble : out  STD_LOGIC
             );
     end component;	
@@ -377,10 +380,7 @@ architecture Behavioral of Processor is
     -- signal RegDstDataW : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
 begin
--- ****** Close the serial port ******
-    rdn <= '1';
-    wrn <= '1';
-    l <= PCF(7 downto 0) & InstrF(7 downto 0);
+    --l <= PCF(7 downto 0) & InstrF(7 downto 0);
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -398,7 +398,7 @@ begin
                             InstrF, PCPlus1F, InstrD, PCPlus1D
                         );
 -- ****** ID ******
-
+	
 	--slove conflict
     IDpart : ID port map (  rst, clk,
                             ALUSrc1D, ImmLenD, ImmExtendD, JumpDstD,
@@ -445,6 +445,7 @@ begin
 														Forward1E, Forward2E
                         );
 -- ****** EXE ******
+	--l <= ImmE(3 downto 0) & MemWriteM & WriteDataM(2 downto 0) & RegDstDataW(3 downto 0) & ALUOutM(3 downto 0);
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
                              ALUOpE, WriteDataSrcE, ALUSrc2E,
                              ALUOutE, WriteDataE,
@@ -452,6 +453,7 @@ begin
 														 ALUOutM, RegDstDataW
                            );
 -- ****** EXE2MEM ******
+	 l <= ALUOutM;
     stallM <= '0';
     EXE2MEMpart : REG_EXE_MEM port map (
                             rst, clk, stallM,
@@ -468,6 +470,8 @@ begin
                             ALUOutM, WriteDataM, MemOutM,
                             ram1addr, ram1data, ram1oe, ram1we, ram1en,
                             ram2addr, ram2data, ram2oe, ram2we, ram2en,
+									 rdn,wrn,
+									 ComdataReady, ComTbre, ComTsre,
                             bubble
                         );
 -- ****** MEM2WB ******
