@@ -38,6 +38,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 --				10 -- 选择来自MEM阶段的数据(即ALU的运算结果)
 
 
+--ForwardRx: 00 -- 选择RD1（通用寄存器出口）
+--				01 -- 选择来自WB阶段的数据 (即从MEM读出来的数据 与 ALU运算结果 的二选一)
+--				10 -- 选择来自MEM阶段的数据(即ALU的运算结果)
 
 entity ForwardUnit is
 	port(
@@ -49,7 +52,8 @@ entity ForwardUnit is
 		A2: in std_logic_vector(2 downto 0);
 		
 		Forward1: out std_logic_vector(1 downto 0);
-		Forward2: out std_logic_vector(1 downto 0)
+		Forward2: out std_logic_vector(1 downto 0);
+		ForwardRx: out std_logic_vector(1 downto 0)
 	);
 end ForwardUnit;
 
@@ -71,7 +75,12 @@ begin
 				else "01" when RegDstM(3) = '1' and A2 = RegDstM(2 downto 0) --上上条写通用寄存器 && 通用寄存器相同
 				
 				else "00";
-					
+	
+	ForwardRx <= "10" when RegDstE(3) = '1' and A1 = RegDstE(2 downto 0) -- 上条写通用寄存器 && 通用寄存器相同
+	
+				else "01" when RegDstM(3) = '1' and A1 = RegDstM(2 downto 0) --上上条写通用寄存器 && 通用寄存器相同
+				
+				else "00";
 	
 end Behavioral;
 

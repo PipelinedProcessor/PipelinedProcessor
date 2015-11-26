@@ -38,8 +38,7 @@ entity Memory is
            ComRdn, ComWrn : out STD_LOGIC;
            ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
         
-           bubble : out  STD_LOGIC;
-			  l : out  STD_LOGIC_VECTOR
+           bubble : out  STD_LOGIC
          );
 end Memory;
 
@@ -104,7 +103,6 @@ begin
               readSignalC, writeSignalC, dataOutC, -- dataInC,
               ComRdn, ComWrn, ComdataReady, ComTbre, ComTsre
            );
-	 l <= addrF(15) & addrM(15 downto 10) & readSignal1 & readSignalC & dataOutC(6 downto 0);
 
     
     bubble <= '1' when addrM(15) = '0' 

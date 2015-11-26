@@ -59,6 +59,7 @@ entity REG_ID_EXE is
 		  RxD : in STD_LOGIC_VECTOR(15 downto 0);
 		  Forward1D: in std_logic_vector(1 downto 0);
 		  Forward2D: in std_logic_vector(1 downto 0);
+		  ForwardRxD: in std_logic_vector(1 downto 0);
 			
         --control signal
         MemReadE: out std_logic;
@@ -74,9 +75,11 @@ entity REG_ID_EXE is
         extendDataE: out std_logic_vector(15 downto 0);
         RxE : out STD_LOGIC_VECTOR(15 downto 0);
 		  Forward1E: out std_logic_vector(1 downto 0);
-		  Forward2E: out std_logic_vector(1 downto 0)
+		  Forward2E: out std_logic_vector(1 downto 0);
+		  ForwardRxE: out std_logic_vector(1 downto 0)
     );
 end entity;
+
 
 architecture Behavioral of REG_ID_EXE is
     --control signal
@@ -95,6 +98,7 @@ architecture Behavioral of REG_ID_EXE is
 	 signal Rx : STD_LOGIC_VECTOR(15 downto 0);
 	 signal Forward1: std_logic_vector(1 downto 0);
 	 signal Forward2: std_logic_vector(1 downto 0);
+	 signal ForwardRx: std_logic_vector(1 downto 0);
 	 
 begin
     --control signal
@@ -113,8 +117,9 @@ begin
 	 RxE <= Rx;
 	 Forward1E <= Forward1;
     Forward2E <= Forward2;
+	 ForwardRxE <= ForwardRx;
 	 
-    process(rst, clk, stall)
+    process(rst, clk, stall, flush)
     begin
         if rst = '0' then -- 异步清零
             --control signal
@@ -132,6 +137,7 @@ begin
 				Rx <= (others => '0');
 				Forward1 <= (others => '0');
 				Forward2 <= (others => '0');
+				ForwardRx <= (others => '0');
 				
         elsif rising_edge(clk) then
             if stall = '0' and flush = '0' then	--正常赋值
@@ -151,6 +157,7 @@ begin
                 Rx <= RxD;
 					 Forward1 <= Forward1D;
 					 Forward2 <= Forward2D;
+					 ForwardRx <= ForwardRxD;
 					 
 				elsif flush = '1' then	--同步清零
 					 --control signal
@@ -168,6 +175,7 @@ begin
 					Rx <= (others => '0');
 					Forward1 <= (others => '0');
 					Forward2 <= (others => '0');
+					ForwardRx <= (others => '0');
 							
             else    						--保持原值
                 --control signal
@@ -186,9 +194,8 @@ begin
 					 Rx <= Rx;
 					 Forward1 <= Forward1;
 					 Forward2 <= Forward2;
-					 
-            end if;
-        
+					 ForwardRx <= ForwardRx;
+				end if;
         end if;
     end process;
     
