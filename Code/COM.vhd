@@ -33,7 +33,7 @@ entity COM is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            BusData : in  STD_LOGIC_VECTOR (7 downto 0);
-           -- BusData : inout  STD_LOGIC_VECTOR (7 downto 0);
+           --BusData : inout  STD_LOGIC_VECTOR (7 downto 0);
            ComAddr : in  STD_LOGIC;
            ComreadSignal : in  STD_LOGIC;
            ComwriteSignal : in  STD_LOGIC;
@@ -49,11 +49,10 @@ end COM;
 architecture Behavioral of COM is
 
 begin
-    ComRdn <= not ComreadSignal or clk;
+    ComRdn <= (not ComreadSignal or clk) or (ComAddr);
     ComWrn <= not ComwriteSignal or clk;
     ComRData <= (others => '0') when ComreadSignal = '0' or rst = '0'
                 else  "000000" & ComdataReady & (ComTbre and ComTsre) when ComAddr = '1'
                 else  BusData;
-
 end Behavioral;
 

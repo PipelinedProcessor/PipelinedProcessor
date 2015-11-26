@@ -99,7 +99,7 @@ begin
                 else (others => 'Z');
    
     com1 : Com port map (
-              clk, rst, ram1Data(7 downto 0), dataInM(0), 
+              clk, rst, ram1Data(7 downto 0), addrM(0), 
               readSignalC, writeSignalC, dataOutC, -- dataInC,
               ComRdn, ComWrn, ComdataReady, ComTbre, ComTsre
            );
@@ -145,6 +145,6 @@ begin
     dataInC <= dataInM(7 downto 0);
     instrF <= dataOut2;
     dataOutM <= dataOut2 when addrM(15) = '0' and readSignalM = '1'
-                else "00000000" & dataOutC when addrM(15 downto 4) = "101111110000" and readSignalM = '1'
+                else "00000000" & dataOutC when addrM(15 downto 1) = "101111110000000" and readSignalM = '1'
                 else dataOut1;
 end Behavioral;
