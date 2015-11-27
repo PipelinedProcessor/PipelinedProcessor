@@ -65,7 +65,8 @@ begin
 		else '0';
 	
 	DirectJmp <=
-		'1' when INST(15 downto 11) = "00010"
+		'1' when (INST(15 downto 11) = "00010") 
+			   or (INST(15 downto 11) = "11101" and INST(4 downto 0) = "00000" and (INST(7 downto 5) = "000" or (INST(7 downto 5) = "110") or (INST(7 downto 5) = "001")))
 		else '0';
 	
 	MemRead <=

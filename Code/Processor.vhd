@@ -393,7 +393,7 @@ architecture Behavioral of Processor is
 begin
 	--l <= ComdataReady & ALUOutM(6 downto 0) & R1(7 downto 0);
     --l <= PCF(7 downto 0) & ALUOutM(15 downto 8);
-	 l <= (ComTbre and ComTsre) & ALUOutE(14 downto 0);
+	 l <= ComDataReady & (ComTbre and ComTsre) & ALUOutE(13 downto 0);
 	 --l <= (others => '0');
 -- ****** IF ******
     --stallF <= '0';
