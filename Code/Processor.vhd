@@ -75,12 +75,15 @@ architecture Behavioral of Processor is
               ImmExtend: in std_logic;
 				  JumpDst: in std_logic_vector(1 downto 0);
 				  --slove conflict
-				  RegDstE: in std_logic_vector(3 downto 0);
-				  RegDstM: in std_logic_vector(3 downto 0);
-				  RegDstW: in std_logic_vector(3 downto 0);
+				  ForwardRA: in std_logic_vector(1 downto 0);
+				  ForwardT: in std_logic_vector(1 downto 0);
+				  ForwardSP: in std_logic_vector(1 downto 0);
+				  ForwardIH: in std_logic_vector(1 downto 0);
+				  ForwardRD1: in std_logic_vector(1 downto 0);
+				  ForwardRD2: in std_logic_vector(1 downto 0);
+		
 				  ALUResultE: in std_logic_vector(15 downto 0);
-				  ALUResultM: in std_logic_vector(15 downto 0);
-				  ALUResultW: in std_logic_vector(15 downto 0);
+				  MemtoRegChooseM: in std_logic_vector(15 downto 0);
         
               A1: in std_logic_vector(2 downto 0);
               A2: in std_logic_vector(2 downto 0);
@@ -99,8 +102,7 @@ architecture Behavioral of Processor is
               regData1: out std_logic_vector(15 downto 0);
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
-				  PCBranch: out std_logic_vector(15 downto 0);
-				  l : out std_logic_vector(15 downto 0)
+				  PCBranch: out std_logic_vector(15 downto 0)
             );
     end component;
 	 
@@ -108,16 +110,20 @@ architecture Behavioral of Processor is
 	
 	component ForwardUnit is
 		port(
+				--旁路传回的控制信号
 				RegDstE: in std_logic_vector(3 downto 0);
 				RegDstM: in std_logic_vector(3 downto 0);
-				ALUSrc1: in std_logic_vector(1 downto 0);
 		
 				A1: in std_logic_vector(2 downto 0);
 				A2: in std_logic_vector(2 downto 0);
 		
-				Forward1: out std_logic_vector(1 downto 0);
-				Forward2: out std_logic_vector(1 downto 0);
-				ForwardRx: out std_logic_vector(1 downto 0)
+				--给出的选择信号
+				ForwardRA: out std_logic_vector(1 downto 0);
+				ForwardT: out std_logic_vector(1 downto 0);
+				ForwardSP: out std_logic_vector(1 downto 0);
+				ForwardIH: out std_logic_vector(1 downto 0);
+				ForwardRD1: out std_logic_vector(1 downto 0);
+				ForwardRD2: out std_logic_vector(1 downto 0)
 			);
 	end component;
 	 
@@ -133,6 +139,7 @@ architecture Behavioral of Processor is
 		
 					A1: in std_logic_vector(2 downto 0);
 					A2: in std_logic_vector(2 downto 0);
+					INST_15_11: in std_logic_vector(4 downto 0);
 	
 					stallF: out std_logic;
 					stallD: out std_logic;
@@ -162,9 +169,12 @@ architecture Behavioral of Processor is
 	 
 	 --hy add
 	 signal FlushE: STD_LOGIC;
-	 signal Forward1D: STD_LOGIC_VECTOR(1 downto 0);
-	 signal Forward2D: STD_LOGIC_VECTOR(1 downto 0);
-	 signal ForwardRxD: std_logic_vector(1 downto 0);
+	 signal ForwardRAD: std_logic_vector(1 downto 0);
+	 signal ForwardTD: std_logic_vector(1 downto 0);
+	 signal ForwardSPD: std_logic_vector(1 downto 0);
+	 signal ForwardIHD: std_logic_vector(1 downto 0);
+	 signal ForwardRD1D: std_logic_vector(1 downto 0);
+	 signal ForwardRD2D: std_logic_vector(1 downto 0);
  -- ****** ******
     component controller is
         Port ( INST : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -209,9 +219,6 @@ architecture Behavioral of Processor is
             WriteDataSrcD : in STD_LOGIC;
 
             regData1D, regData2D, extendDataD, RxD: in std_logic_vector(15 downto 0); 
-				    Forward1D: in std_logic_vector(1 downto 0);
-				    Forward2D: in std_logic_vector(1 downto 0);
-					 ForwardRxD: in std_logic_vector(1 downto 0);
             
             MemReadE, MemWriteE, Mem2RegE: out std_logic;
             ALUOpE: out std_logic_vector(3 downto 0);
@@ -219,10 +226,7 @@ architecture Behavioral of Processor is
             RegDstE: out std_logic_vector(3 downto 0);
             WriteDataSrcE : out STD_LOGIC;
             
-            regData1E, regData2E, extendDataE, RxE: out std_logic_vector(15 downto 0) ;
-				Forward1E: out std_logic_vector(1 downto 0);
-				Forward2E: out std_logic_vector(1 downto 0);
-				ForwardRxE: out std_logic_vector(1 downto 0)
+            regData1E, regData2E, extendDataE, RxE: out std_logic_vector(15 downto 0)
         );
     end component;
     -- cmd in
@@ -255,11 +259,6 @@ architecture Behavioral of Processor is
     signal Src2E : STD_LOGIC_VECTOR(15 downto 0);
     signal ImmE : STD_LOGIC_VECTOR(15 downto 0);
     signal RxE : STD_LOGIC_VECTOR(15 downto 0);
-	 
-	 --hy_add
-	 signal Forward1E: STD_LOGIC_VECTOR(1 downto 0);
-	 signal Forward2E: STD_LOGIC_VECTOR(1 downto 0);
-	 signal ForwardRxE: std_logic_vector(1 downto 0);
  -- ****** ******
     component EXE is
         Port ( Rx, imm, Src1, Ry: in std_logic_vector (15 downto 0);
@@ -267,9 +266,7 @@ architecture Behavioral of Processor is
                WriteDataSrc: in std_logic; -- control signal to select which reg to write back to memory
                ALUSrc2: in std_logic; -- control signal to select if ry or imm is the second source for ALU
                ALUResult: out std_logic_vector(15 downto 0);
-               WriteData: out std_logic_vector(15 downto 0);
-				       Forward1E, Forward2E, ForwardRxE: in std_logic_vector(1 downto 0); -- harzard control signal to solve data conflict
-			         ALUOutM, RegDstDataW: in std_logic_vector(15 downto 0)
+               WriteData: out std_logic_vector(15 downto 0)
           --l : out STD_LOGIC_VECTOR(15 downto 0)
              );
     end component;
@@ -314,6 +311,7 @@ architecture Behavioral of Processor is
     -- signal WriteDataE : STD_LOGIC_VECTOR(15 downto 0); -- TODO: ryz not implemented yet
     -- data out
     signal ALUOutM, WriteDataM : STD_LOGIC_VECTOR(15 downto 0);
+	 signal MemtoRegChooseM: STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
     component Memory is
         Port ( clk, rst : in  STD_LOGIC;
@@ -354,34 +352,37 @@ architecture Behavioral of Processor is
  -- ****** ******
     component REG_MEM_WB is
         Port ( rst, clk, stall: in std_logic;
-               Mem2RegM: in std_logic;
-               RegDstM: in std_logic_vector(3 downto 0);
-               MemOutM, ALUOutM: in std_logic_vector(15 downto 0);
-               Mem2RegW: out std_logic;
-               RegDstW: out std_logic_vector(3 downto 0);
-               MemOutW, ALUOutW: out std_logic_vector(15 downto 0)
+					--control signal
+					RegDstM: in std_logic_vector(3 downto 0);
+					--data
+					MemtoRegChooseM: in std_logic_vector(15 downto 0);
+		
+					--control signal
+					RegDstW: out std_logic_vector(3 downto 0);
+					--data
+					MemtoRegChooseW: out std_logic_vector(15 downto 0)
              );
     end component;
+	 
     -- cmd in
     signal stallW : STD_LOGIC;
         -- defined before
     -- signal Mem2RegM : STD_LOGIC;
     -- signal RegDstM : STD_LOGIC_VECTOR(3 downto 0);
     -- cmd out
-    signal Mem2RegW : STD_LOGIC;
+    --signal Mem2RegW : STD_LOGIC;
         -- defined before in ID
     --signal RegDstW : STD_LOGIC_VECTOR(3 downto 0);
     -- data in (defined before)
     -- signal MemOutM, ALUOutM : STD_LOGIC_VECTOR(15 downto 0);
     -- data out
-    signal MemOutW, ALUOutW : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
-    component WriteBack is
-        Port ( MemtoReg: in std_logic;
-               MemOut, ALUOut : in std_logic_vector(15 downto 0);
-               RegDstData: out std_logic_vector(15 downto 0) 
-             );
-    end component;
+    --component WriteBack is
+    --    Port ( MemtoReg: in std_logic;
+    --           MemOut, ALUOut : in std_logic_vector(15 downto 0);
+    --           RegDstData: out std_logic_vector(15 downto 0) 
+    --         );
+    --end component;
     -- cmd in (defined before)
     -- signal Mem2RegW : STD_LOGIC;
     -- data in (defined before)
@@ -389,10 +390,11 @@ architecture Behavioral of Processor is
     -- data out (defined before in ID)
     -- signal RegDstDataW : STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
-	signal R1 : std_logic_vector(15 downto 0);
 begin
-	l <= ComdataReady & ALUOutM(6 downto 0) & R1(7 downto 0);
+	--l <= ComdataReady & ALUOutM(6 downto 0) & R1(7 downto 0);
     --l <= PCF(7 downto 0) & ALUOutM(15 downto 8);
+	 l <= (ComTbre and ComTsre) & ALUOutE(14 downto 0);
+	 --l <= (others => '0');
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -411,16 +413,16 @@ begin
                         );
 -- ****** ID ******
 	
-	--slove conflict
     IDpart : ID port map (  rst, clk,
                             ALUSrc1D, ImmLenD, ImmExtendD, JumpDstD,
-									 RegDstE, RegDstM, RegDstW, ALUOutE, ALUOutM, ALUOutW,
+									 ForwardRAD, ForwardTD, ForwardSPD, ForwardIHD, ForwardRD1D, ForwardRD2D,
+									 ALUOutE, MemtoRegChooseM,
                             InstrD(10 downto 8), InstrD(7 downto 5),
                             RegDstW, RegDstDataW, PCPlus1D,
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
                             InstrD(7 downto 0), InstrD(10 downto 0),
                             ToutD,
-                            RxD, Src1D, Src2D, ImmD, PCBranchD, R1
+                            RxD, Src1D, Src2D, ImmD, PCBranchD
                         );
 								
     Controlpart : controller port map (
@@ -429,16 +431,16 @@ begin
                             ALUSrc1D, ALUSrc2D, ALUOpD,
                             ImmExtendD, ImmLenD, JumpDstD, RegDstD, WriteDataSrcD
                         );
-
+	
     ForwardUnitpart: ForwardUnit port map (
-							RegDstE, RegDstM, ALUSrc1D, 
+							RegDstE, RegDstM,
 							InstrD(10 downto 8), InstrD(7 downto 5), 
-							Forward1D, Forward2D, ForwardRxD
+							ForwardRAD, ForwardTD, ForwardSPD, ForwardIHD, ForwardRD1D, ForwardRD2D
 						);
 
     HazardUnitpart: HazardUnit port map (
                             RegDstE, MemReadE, ALUSrc1D, ALUSrc2D, bubble,
-									 InstrD(10 downto 8), InstrD(7 downto 5), 
+									 InstrD(10 downto 8), InstrD(7 downto 5), InstrD(15 downto 11), 
 									 stallF, stallD, FlushE
                         );
 								
@@ -450,19 +452,15 @@ begin
                             MemReadD, MemWriteD, Mem2RegD,
                             ALUOpD, ALUSrc2D, RegDstD, WriteDataSrcD,
                             Src1D, Src2D, ImmD, RxD,
-									          Forward1D, Forward2D, ForwardRxD, 
                             MemReadE, MemWriteE, Mem2RegE,
                             ALUOpE, ALUSrc2E, RegDstE, WriteDataSrcE,
-                            Src1E, Src2E, ImmE, RxE, 
-														Forward1E, Forward2E, ForwardRxE
+                            Src1E, Src2E, ImmE, RxE
                         );
 -- ****** EXE ******
 	--l <= ImmE(3 downto 0) & MemWriteM & WriteDataM(2 downto 0) & RegDstDataW(3 downto 0) & ALUOutM(3 downto 0);
     EXEpart : EXE port map ( RxE, ImmE, Src1E, Src2E,
                              ALUOpE, WriteDataSrcE, ALUSrc2E,
-                             ALUOutE, WriteDataE,
-														 Forward1E, Forward2E, ForwardRxE, 
-														 ALUOutM, RegDstDataW
+                             ALUOutE, WriteDataE
                            );
 -- ****** EXE2MEM ******
 	 --l <= ALUOutM;
@@ -488,14 +486,20 @@ begin
 									 
                             bubble
                         );
+	with Mem2RegM select
+		MemtoRegChooseM <= MemOutM when '1',
+								 ALUOutM when '0',
+								 (others => '0') when others;
+	
 -- ****** MEM2WB ******
+	
     stallW <= '0';
     MEM2WBpart : REG_MEM_WB port map (
                             rst, clk, stallW,
-                            Mem2RegM, RegDstM, MemOutM, ALUOutM,
-                            Mem2RegW, RegDstW, MemOutW, ALUOutW
+                            RegDstM, MemtoRegChooseM, 
+                            RegDstW, RegDstDataW
                         );
 -- ****** WB *******
-    WBpart : WriteBack port map (Mem2RegW, MemOutW, ALUOutW, RegDstDataW);
+    --WBpart : WriteBack port map (Mem2RegW, MemOutW, ALUOutW, RegDstDataW);
 -- ****** ******
 end Behavioral;

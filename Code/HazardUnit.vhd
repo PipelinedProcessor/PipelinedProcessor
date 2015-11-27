@@ -46,6 +46,7 @@ entity HazardUnit is
 		
 		A1: in std_logic_vector(2 downto 0);
 		A2: in std_logic_vector(2 downto 0);
+		INST_15_11: in std_logic_vector(4 downto 0);
 	
 		stallF: out std_logic;
 		stallD: out std_logic;
@@ -59,10 +60,13 @@ begin
 	
 	needLWBubble <= MemReadE = '1' 	--上条是 读内存到寄存器 指令（LW, LW_SP）
 				 and (						--且 本条读的寄存器 与 上条写的寄存器 相同
-							( ALUSrc1 = "00" and RegDstE(3) = '1' and A1 = RegDstE(2 downto 0) ) --本条RD1读通用寄存器 && 上条写通用寄存器 && 通用寄存器相同
-						or	( ALUSrc1 = "01" and RegDstE = "0001" ) --本条RD1读SP寄存器 && 上条写SP寄存器
+							--（本条为SW_SP（要将RD1写入内存） 或 本条RD1读通用寄存器） && 上条写通用寄存器 && 通用寄存器相同
+							( (INST_15_11 = "11010" or ALUSrc1 = "00") and RegDstE(3) = '1' and A1 = RegDstE(2 downto 0) ) 
+							--本条RD1读SP寄存器 && 上条写SP寄存器
+						or	( ALUSrc1 = "01" and RegDstE = "0001" ) 
 						
-						or ( ALUSrc2 = '0' and RegDstE(3) = '1' and A2 = RegDstE(2 downto 0) ) --本条RD2读通用寄存器 && 上条写通用寄存器 && 通用寄存器相同
+						--（本条为SW（要将RD2写入内存） 或 本条RD2读通用寄存器） && 上条写通用寄存器 && 通用寄存器相同
+						or ( (INST_15_11 = "11011" or ALUSrc2 = '0') and RegDstE(3) = '1' and A2 = RegDstE(2 downto 0) ) 
 					  ); 
 	
 	process(bubble, needLWBubble)

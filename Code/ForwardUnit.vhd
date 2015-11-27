@@ -29,58 +29,55 @@ use IEEE.STD_LOGIC_1164.ALL;
 --A2：读取的通用寄存器编号(rt)
 
 
---Forward1: 00 -- 选择regData1
---				01 -- 选择来自WB阶段的数据 (即从MEM读出来的数据 与 ALU运算结果 的二选一)
---				10 -- 选择来自MEM阶段的数据(即ALU的运算结果)
-
---Forward2: 00 -- 选择regData2
---				01 -- 选择来自WB阶段的数据 (即从MEM读出来的数据 与 ALU运算结果 的二选一)
---				10 -- 选择来自MEM阶段的数据(即ALU的运算结果)
-
-
---ForwardRx: 00 -- 选择RD1（通用寄存器出口）
---				01 -- 选择来自WB阶段的数据 (即从MEM读出来的数据 与 ALU运算结果 的二选一)
---				10 -- 选择来自MEM阶段的数据(即ALU的运算结果)
+--Forward: 00 -- 选择原信号
+--			  01 -- 选择来自ALU阶段输出的数据 
+--			  10 -- 选择来自MEM阶段输出的数据(即从MEM读出来的数据 与 ALU运算结果 的二选一)
 
 entity ForwardUnit is
 	port(
+		--旁路传回的控制信号
 		RegDstE: in std_logic_vector(3 downto 0);
 		RegDstM: in std_logic_vector(3 downto 0);
-		ALUSrc1: in std_logic_vector(1 downto 0);
 		
 		A1: in std_logic_vector(2 downto 0);
 		A2: in std_logic_vector(2 downto 0);
 		
-		Forward1: out std_logic_vector(1 downto 0);
-		Forward2: out std_logic_vector(1 downto 0);
-		ForwardRx: out std_logic_vector(1 downto 0)
+		--给出的选择信号
+		ForwardRA: out std_logic_vector(1 downto 0);
+		ForwardT: out std_logic_vector(1 downto 0);
+		ForwardSP: out std_logic_vector(1 downto 0);
+		ForwardIH: out std_logic_vector(1 downto 0);
+		ForwardRD1: out std_logic_vector(1 downto 0);
+		ForwardRD2: out std_logic_vector(1 downto 0)
 	);
 end ForwardUnit;
 
 architecture Behavioral of ForwardUnit is
 begin
 
-	Forward1 <= "10" when ( ALUSrc1 = "00" and RegDstE(3) = '1' and A1 = RegDstE(2 downto 0) ) --本条读通用寄存器 && 上条写通用寄存器 && 通用寄存器相同
-								or	( ALUSrc1 = "01" and RegDstE = "0001" ) --本条读SP寄存器 && 上条写SP寄存器
-								or ( ALUSrc1 = "10" and RegDstE = "0010" ) --本条读IH寄存器 && 上条写IH寄存器
-								
-				else "01" when ( ALUSrc1 = "00" and RegDstM(3) = '1' and A1 = RegDstM(2 downto 0) ) --本条读通用寄存器 && 上上条写通用寄存器 && 通用寄存器相同
-								or ( ALUSrc1 = "01" and RegDstM = "0001" ) --本条读SP寄存器 && 上上条写SP寄存器
-								or ( ALUSrc1 = "10" and RegDstM = "0010" ) --本条读IH寄存器 && 上上条写IH寄存器
-								
-				else "00";
-				
-	Forward2 <= "10" when RegDstE(3) = '1' and A2 = RegDstE(2 downto 0) -- 上条写通用寄存器 && 通用寄存器相同
+	ForwardSP <= "01" when RegDstE = "0001" -- 上条要写SP
+			else	 "10" when RegDstM = "0001" -- 上上条要写SP
+			else	 "00";
+			
+	ForwardIH <= "01" when RegDstE = "0010" -- 上条要写IH
+			else	 "10" when RegDstM = "0010" -- 上上条要写IH
+			else	 "00";
 	
-				else "01" when RegDstM(3) = '1' and A2 = RegDstM(2 downto 0) --上上条写通用寄存器 && 通用寄存器相同
-				
-				else "00";
+	ForwardT <= "01" when RegDstE = "0011" -- 上条要写T
+			else	"10" when RegDstM = "0011" -- 上上条要写T
+			else	"00";
+			
+	ForwardRA <= "01" when RegDstE = "0100" -- 上条要写RA
+			else	 "10" when RegDstM = "0100" -- 上上条要写RA
+			else	 "00";
+			
+	ForwardRD1 <= "01" when RegDstE(3) = '1' and A1 = RegDstE(2 downto 0)-- 上条写通用寄存器 && 通用寄存器相同
+			else	  "10" when RegDstM(3) = '1' and A1 = RegDstM(2 downto 0)-- 上上条要写通用寄存器 && 通用寄存器相同
+			else	  "00";
 	
-	ForwardRx <= "10" when RegDstE(3) = '1' and A1 = RegDstE(2 downto 0) -- 上条写通用寄存器 && 通用寄存器相同
-	
-				else "01" when RegDstM(3) = '1' and A1 = RegDstM(2 downto 0) --上上条写通用寄存器 && 通用寄存器相同
-				
-				else "00";
-	
+	ForwardRD2 <= "01" when RegDstE(3) = '1' and A2 = RegDstE(2 downto 0)-- 上条写通用寄存器 && 通用寄存器相同
+			else	  "10" when RegDstM(3) = '1' and A2 = RegDstM(2 downto 0)-- 上上条要写通用寄存器 && 通用寄存器相同
+			else	  "00";
+
 end Behavioral;
 

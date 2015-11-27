@@ -141,6 +141,9 @@ begin
 												or   (INST(15 downto 11) = "11110" and INST(0) = '0') -- MFIH
 												or   (INST(15 downto 11) = "00110") -- SLL / SRA
 												or   (INST(15 downto 11) = "01111") -- MOVE
+												-- hy add
+												or	  (INST(15 downto 11) = "11101" and INST(4 downto 1) = "0000") -- MFPC
+												
 		else '1' & INST(7 downto 5)   when (INST(15 downto 11) = "01000") -- ADDIU3
 												or   (INST(15 downto 11) = "10011") -- LW
 		else '1' & INST(4 downto 2)   when (INST(15 downto 11) = "11100") -- ADDU / SUBU

@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    15:51:24 11/24/2015 
+-- Create Date:    14:22:58 11/27/2015 
 -- Design Name: 
--- Module Name:    ChooseRASource - Behavioral 
+-- Module Name:    ChooseRD2Source - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -24,31 +24,32 @@ use IEEE.STD_LOGIC_1164.ALL;
 --			  01 -- 选择来自ALU阶段输出的数据 
 --			  10 -- 选择来自MEM阶段输出的数据(即从MEM读出来的数据 与 ALU运算结果 的二选一)
 
---RA: RA寄存器中的值
---ALUResultE：上条指令要写回的RA值，取自EXE阶段ALU的输出
---MemtoRegChooseM: 上上条指令要写回的RA值，取自传至MEM阶段ALU输出与内存读出结果的二选一
+--RD2: RD2寄存器中的值
+--ALUResultE：上条指令要写回的RD2值，取自EXE阶段ALU的输出
+--MemtoRegChooseM: 上上条指令要写回的RD2值，取自传至MEM阶段ALU输出与内存读出结果的二选一
 
---ChooseRA： 输出，应选择的RA值
+--ChooseRD2： 输出，应选择的RD2值
 
-entity ChooseRASource is
+entity ChooseRD2Source is
 	port(
 		--control
-		ForwardRA: in std_logic_vector(1 downto 0);
+		ForwardRD2: in std_logic_vector(1 downto 0);
 		
-		RA: in std_logic_vector(15 downto 0);
+		RD2: in std_logic_vector(15 downto 0);
 		ALUResultE: in std_logic_vector(15 downto 0);
 		MemtoRegChooseM: in std_logic_vector(15 downto 0);
 		
-		ChooseRA: out std_logic_vector(15 downto 0)
+		ChooseRD2: out std_logic_vector(15 downto 0)
 	);	
-end ChooseRASource;
+	
+end ChooseRD2Source;
 
-architecture Behavioral of ChooseRASource is
+architecture Behavioral of ChooseRD2Source is
 
 begin
-	ChooseRA <= ALUResultE when ForwardRA(0) = '1'
-			else	MemtoRegChooseM when ForwardRA(1) = '1'
-			else RA;
+	ChooseRD2 <= ALUResultE when ForwardRD2(0) = '1'
+			else	MemtoRegChooseM when ForwardRD2(1) = '1'
+			else 	RD2;
 
 end Behavioral;
 

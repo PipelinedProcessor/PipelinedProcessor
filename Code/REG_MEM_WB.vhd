@@ -24,69 +24,55 @@ entity REG_MEM_WB is
 	port(
 		rst, clk, stall: in std_logic;
 		--control signal
-		Mem2RegM: in std_logic;
 		RegDstM: in std_logic_vector(3 downto 0);
 		--data
-		MemOutM: in std_logic_vector(15 downto 0);
-		ALUOutM: in std_logic_vector(15 downto 0);
+		MemtoRegChooseM: in std_logic_vector(15 downto 0);
 		
 		--control signal
-		Mem2RegW: out std_logic;
 		RegDstW: out std_logic_vector(3 downto 0);
 		--data
-		MemOutW: out std_logic_vector(15 downto 0);
-		ALUOutW: out std_logic_vector(15 downto 0)
+		MemtoRegChooseW: out std_logic_vector(15 downto 0)
 	);
 end REG_MEM_WB;
 
 architecture Behavioral of REG_MEM_WB is
 	--control signal
-	signal Mem2Reg: std_logic;
 	signal RegDst: std_logic_vector(3 downto 0);
 	
 	--data
-	signal MemOut: std_logic_vector(15 downto 0);
-	signal ALUOut: std_logic_vector(15 downto 0);
+	signal MemtoRegChoose: std_logic_vector(15 downto 0);
 	
 begin
 	--control signal
-	Mem2RegW <= Mem2Reg;
 	RegDstW <= RegDst;
 	
 	--data
-	MemOutW <= MemOut;
-	ALUOutW <= ALUOut;
+	MemtoRegChooseW <= MemtoRegChoose;
 	
 	process(rst, clk, stall)
 	begin
 		if rst = '0' then -- Òì²½ÇåÁã
 			--control signal
-			Mem2Reg <= '0';
 			RegDst <= (others => '0');
 			
 			--data
-			MemOut <= (others => '0');
-			ALUOut <= (others => '0');
+			MemtoRegChoose <= (others => '0');
 			
 		elsif rising_edge(clk) then
 			if stall = '0' then
 				--control signal
-				Mem2Reg <= Mem2RegM;
 				RegDst <= RegDstM;
 				
 				--data
-				MemOut <= MemOutM;
-				ALUOut <= ALUOutM;
+				MemtoRegChoose <= MemtoRegChooseM;
 				
 			else	--doing nothing
 				
 				--control signal
-				Mem2Reg <= Mem2Reg;
 				RegDst <= RegDst;
 				
 				--data
-				MemOut <= MemOut;
-				ALUOut <= ALUOut;
+				MemtoRegChoose <= MemtoRegChoose;
 				
 			end if;
 		
