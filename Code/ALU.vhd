@@ -66,7 +66,9 @@ begin
 		else tmp30;
 	res3 <=
 		A(15) & A(15) & A(15) & A(15) & tmp31(15 downto 4) when B(2) = '1'
-		else A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(7 downto 0) when B(2) = '0' and B(1) = '0' and B(0) = '0'
+		--else A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(7 downto 0) when B(2) = '0' and B(1) = '0' and B(0) = '0'
+		--hy yxc add
+		else A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15) & A(15 downto 8) when B(2) = '0' and B(1) = '0' and B(0) = '0'
 		else tmp31;
 -- A == B	
 	res4 <= 

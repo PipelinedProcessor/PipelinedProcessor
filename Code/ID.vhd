@@ -91,6 +91,8 @@ entity ID is
 		ExtendChooseOut: out std_logic_vector(15 downto 0);
 		PCBranch: out std_logic_vector(15 downto 0)
 		
+		--l : out  STD_LOGIC_VECTOR(7 downto 0)
+		
 	);
 end ID;
 
@@ -104,6 +106,7 @@ architecture Behavioral of ID is
 		RegDstData: in std_logic_vector(15 downto 0);
 		RD1, RD2, SP_out, IH_out, RA_out: out std_logic_vector(15 downto 0);
 		T_out: out std_logic
+		--l : out  STD_LOGIC_VECTOR(7 downto 0)
 	);
 	end component;
 	

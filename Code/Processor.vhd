@@ -103,6 +103,8 @@ architecture Behavioral of Processor is
               regData2: out std_logic_vector(15 downto 0);
               ExtendChooseOut: out std_logic_vector(15 downto 0);
 				  PCBranch: out std_logic_vector(15 downto 0)
+				  
+				  --l : out  STD_LOGIC_VECTOR(7 downto 0)
             );
     end component;
 	 
@@ -392,9 +394,11 @@ architecture Behavioral of Processor is
  -- ****** ******
 begin
 	--l <= ComdataReady & ALUOutM(6 downto 0) & R1(7 downto 0);
-    --l <= PCF(7 downto 0) & ALUOutM(15 downto 8);
-	 l <= ComDataReady & (ComTbre and ComTsre) & ALUOutE(13 downto 0);
+    --l(15 downto 8) <= PCF(7 downto 0);
+	 -- l <= ComDataReady & (ComTbre and ComTsre) & ALUOutE(13 downto 0);
 	 --l <= (others => '0');
+	 --l(15 downto 8) <= PCF(3 downto 0) & InstrD(3 downto 0);-- & InstrD(7 downto 0);
+	 l <= ALUOutE;
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -422,7 +426,7 @@ begin
                             InstrD(3 downto 0), InstrD(4 downto 0), InstrD(4 downto 2),
                             InstrD(7 downto 0), InstrD(10 downto 0),
                             ToutD,
-                            RxD, Src1D, Src2D, ImmD, PCBranchD
+                            RxD, Src1D, Src2D, ImmD, PCBranchD--, l(7 downto 0)
                         );
 								
     Controlpart : controller port map (

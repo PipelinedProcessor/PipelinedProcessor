@@ -49,6 +49,7 @@ entity reg_controller is
 		RegDstData: in std_logic_vector(15 downto 0);
 		RD1, RD2, SP_out, IH_out, RA_out: out std_logic_vector(15 downto 0);
 		T_out: out std_logic
+		--l : out  STD_LOGIC_VECTOR(7 downto 0)
 	);
 end reg_controller;
 
@@ -56,8 +57,9 @@ architecture Behavioral of reg_controller is
 	signal r0, r1, r2, r3, r4, r5, r6, r7: std_logic_vector(15 downto 0) := (others => '0');--通用寄存器
 	signal SP, IH, RA: std_logic_vector(15 downto 0) := (others => '0');--特殊寄存器
 	signal T: std_logic;--特殊寄存器
-	
 begin
+   --l <= r6(7 downto 0);
+
 	with A1 select
 	RD1 <= r0 when "000",
 			 r1 when "001",

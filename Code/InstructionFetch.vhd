@@ -46,7 +46,7 @@ begin
     nextPC <= PCBranchD when DirectJmpD = '1'
 	                       or (NBranchD = '1' and RxEZD = '0')
 							     or (BranchD = '1' and RxEZD = '1')
-								  or (TBranchD = '1' and ToutD = '1')
+								  or (TBranchD = '1' and ToutD = '0')
 								  else PCPlus1;
 
     PCPlus1F <= PCPlus1; -- out
