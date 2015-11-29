@@ -111,8 +111,7 @@ begin
 
     ram1EN <= '1' when rst = '0' or addrM(15 downto 4) = "101111110000"
               else '0';    
-    ram2EN <= '1' when addrM(15) = '0' and (readSignalM = '1' or writeSignalM = '1')
-              else not rst;
+    ram2EN <= not rst;
     
     readSignal1 <= '0' when writeSignalM = '1' 
                          or addrM(15 downto 4) = "101111110000"
