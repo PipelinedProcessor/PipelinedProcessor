@@ -95,8 +95,21 @@ NET "ram2we" LOC = M9;
 NET "rdn" LOC = C14;
 NET "wrn" LOC = U5;
 
-# PlanAhead Generated physical constraints 
 
 NET "ComdataReady" LOC = A16;
 NET "ComTbre" LOC = D14;
 NET "ComTsre" LOC = N9;
+
+# PlanAhead Generated physical constraints 
+
+NET "vgaB[1]" LOC = A6;
+NET "vgaB[2]" LOC = B6;
+NET "vgaB[0]" LOC = D5;
+NET "vgaG[2]" LOC = C5;
+NET "vgaG[1]" LOC = C4;
+NET "vgaG[0]" LOC = B4;
+NET "vgaR[2]" LOC = A4;
+NET "vgaR[1]" LOC = C3;
+NET "vgaR[0]" LOC = A7;
+NET "vgahsync" LOC = D6;
+NET "vgavsync" LOC = E6;

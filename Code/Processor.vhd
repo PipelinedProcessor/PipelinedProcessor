@@ -25,7 +25,9 @@ entity Processor is
            rdn : out STD_LOGIC;
            wrn : out STD_LOGIC;
 			  ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
-
+			  vgahsync, vgavsync : out STD_LOGIC;
+			  vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR(2 downto 0);
+			  
            l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Processor;
@@ -316,7 +318,7 @@ architecture Behavioral of Processor is
 	 signal MemtoRegChooseM: STD_LOGIC_VECTOR(15 downto 0);
  -- ****** ******
     component Memory is
-        Port ( clk, rst : in  STD_LOGIC;
+        Port ( clk, clk50, rst : in  STD_LOGIC;
                addrF : in  STD_LOGIC_VECTOR(15 downto 0);
                instrF : out  STD_LOGIC_VECTOR(15 downto 0);
                readSignalM, writeSignalM : in  STD_LOGIC; 
@@ -332,6 +334,9 @@ architecture Behavioral of Processor is
 					
 					ComRdn, ComWrn : out STD_LOGIC;
 					ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
+					
+					vgahsync, vgavsync : out STD_LOGIC;
+					vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR (2 downto 0);
 					
                bubble : out  STD_LOGIC
             );
@@ -485,7 +490,7 @@ begin
                         );
 -- ****** Mem ******
     Mempart : Memory port map (
-                            clk, rst, 
+                            clk, clk_50, rst, 
                             PCF, InstrF,
                             MemReadM, MemWriteM,
                             ALUOutM, WriteDataM, MemOutM,
@@ -494,7 +499,9 @@ begin
 									 
 									 rdn,wrn,
 									 ComdataReady, ComTbre, ComTsre,
-									 
+									 vgahsync, vgavsync,
+									 vgaR, vgaG, vgaB,
+
                             bubble
                         );
 	with Mem2RegM select
