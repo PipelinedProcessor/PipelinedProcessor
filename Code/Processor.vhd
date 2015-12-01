@@ -27,6 +27,14 @@ entity Processor is
 			  ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
 			  vgahsync, vgavsync : out STD_LOGIC;
 			  vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR(2 downto 0);
+
+					 -- for keyboard
+			     keyboard_clk : in  STD_LOGIC;
+           keyboard_data : in  STD_LOGIC;
+           key1 : out  STD_LOGIC_VECTOR(6 downto 0);
+           key2 : out  STD_LOGIC_VECTOR(6 downto 0);
+			     -- end for keyboard
+
 			  
            l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
@@ -337,6 +345,11 @@ architecture Behavioral of Processor is
 					
 					vgahsync, vgavsync : out STD_LOGIC;
 					vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR (2 downto 0);
+
+							 keyboard_clk : in  STD_LOGIC;
+               keyboard_data : in  STD_LOGIC;
+               key1 : out  STD_LOGIC_VECTOR(6 downto 0);
+               key2 : out  STD_LOGIC_VECTOR(6 downto 0);
 					
                bubble : out  STD_LOGIC
             );
@@ -501,7 +514,8 @@ begin
 									 ComdataReady, ComTbre, ComTsre,
 									 vgahsync, vgavsync,
 									 vgaR, vgaG, vgaB,
-
+									 					keyboard_clk, keyboard_data,
+                            key1, key2,
                             bubble
                         );
 	with Mem2RegM select
