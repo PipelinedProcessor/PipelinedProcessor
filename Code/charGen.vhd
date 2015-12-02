@@ -80,7 +80,7 @@ begin
 	);
 	
 	--raddrtest <= "000000001010";
-	raddr <= x(9 downto 3) & y(8 downto 4);
+	raddr <= y(8 downto 4) & x(9 downto 3);
 	char_mem_unit:vgamemory
 	port map(
 		clk, wea, waddr, wdata,

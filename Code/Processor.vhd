@@ -21,7 +21,7 @@ entity Processor is
            ram2oe : out  STD_LOGIC;
            ram2we : out  STD_LOGIC;
            ram2en : out  STD_LOGIC;
-
+			  
            rdn : out STD_LOGIC;
            wrn : out STD_LOGIC;
 			  ComdataReady, ComTbre, ComTsre : in STD_LOGIC;
@@ -337,7 +337,6 @@ architecture Behavioral of Processor is
 					
 					vgahsync, vgavsync : out STD_LOGIC;
 					vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR (2 downto 0);
-					
                bubble : out  STD_LOGIC
             );
     end component;	
@@ -399,18 +398,19 @@ architecture Behavioral of Processor is
  -- ****** ******
     signal clk : STD_LOGIC;
 begin
+	l <= ALUOUTM;
 	--l <= ComdataReady & ALUOutM(6 downto 0) & R1(7 downto 0);
     --l(15 downto 8) <= PCF(7 downto 0);
 	 -- l <= ComDataReady & (ComTbre and ComTsre) & ALUOutE(13 downto 0);
 	 --l <= (others => '0');
 	 --l(15 downto 8) <= PCF(3 downto 0) & InstrD(3 downto 0);-- & InstrD(7 downto 0);
-	 l <= PCF;
 	 process(clk_50)
 	 begin
-		if clk_50'event and clk_50 = '1' then
+	 	if clk_50'event and clk_50 = '1' then
 			clk <= not clk;
 		end if;
 	 end process;
+	 --clk <= clk_50;
 -- ****** IF ******
     --stallF <= '0';
     RxEZD <= '1' when RxD = X"0000"
@@ -501,7 +501,6 @@ begin
 									 ComdataReady, ComTbre, ComTsre,
 									 vgahsync, vgavsync,
 									 vgaR, vgaG, vgaB,
-
                             bubble
                         );
 	with Mem2RegM select

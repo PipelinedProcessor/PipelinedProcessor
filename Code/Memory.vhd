@@ -52,7 +52,6 @@ entity Memory is
 			  vgahsync, vgavsync : out STD_LOGIC;
 			  vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR (2 downto 0);
 			  
-        
            bubble : out  STD_LOGIC
          );
 end Memory;
@@ -70,7 +69,7 @@ architecture Behavioral of Memory is
                ramOE, ramWE : out  STD_LOGIC
              );
     end component;
-   
+
     component COM is
          Port ( clk : in  STD_LOGIC;
                rst : in  STD_LOGIC;
@@ -120,7 +119,8 @@ begin
     ram1data <= "ZZZZZZZZ" & dataInC when writeSignalC = '1'
                 else dataIn1 when writeSignal1 = '1'
                 else (others => 'Z'); -- writeSignalC is prior to writeSignal1
-   
+    
+
     ram2 : Ram port map (
               clk, rst, readSignal2, writeSignal2,
               addr2, dataOut2,
@@ -141,10 +141,9 @@ begin
 				  vgahsync, vgavsync,
 				  vgaR, vgaG, vgaB
 	 );
+
 	 
-	
-	 
-    
+	  
     bubble <= '1' when addrM(15) = '0' 
                    and (writeSignalM = '1' or readSignalM = '1')
               else '0';
@@ -156,8 +155,8 @@ begin
     readSignal1 <= '0' when writeSignalM = '1' 
                          or addrM(15 downto 4) = "101111110000"
                    else '1';  
-    readSignal2 <= '0' when addrM(15) = '0' 
-                        and writeSignalM = '1'
+    readSignal2 <= '0' when (addrM(15) = '0' 
+                        and writeSignalM = '1')
                    else '1'; 
     readSignalC <= '1' when readSignalM = '1'
                         and addrM(15 downto 1) = "101111110000000"
@@ -167,8 +166,8 @@ begin
                           or writeSignalM = '0'
                           or addrM(15 downto 4) = "101111110000"
                     else '1'; 
-    writeSignal2 <= '1' when addrM(15) = '0'
-                         and writeSignalM = '1'
+    writeSignal2 <= '1' when (addrM(15) = '0'
+                         and writeSignalM = '1')
                     else '0';  
     writeSignalC <= '1' when writeSignalM = '1'
                          and addrM(15 downto 1) = "101111110000000"
