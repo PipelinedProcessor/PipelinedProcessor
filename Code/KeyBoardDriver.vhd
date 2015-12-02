@@ -18,8 +18,7 @@ entity KeyBoardDriver is
            BF02 : out  STD_LOGIC_VECTOR(15 downto 0);
            BF03 : out  STD_LOGIC_VECTOR(15 downto 0);
            key1 : out  STD_LOGIC_VECTOR(6 downto 0);
-           key2 : out  STD_LOGIC_VECTOR(6 downto 0);
-			  l : out  STD_LOGIC
+           key2 : out  STD_LOGIC_VECTOR(6 downto 0)
          );
 end KeyBoardDriver;
 
@@ -72,24 +71,29 @@ begin
 
    BF03 <= (1=>data_ready, others=>'0');
 
-	 data_ready <= '0' when read_ready = '1' or rst = '0'
-						else '1' when falling_edge(break_code) and rst = '1'
-	 	            else data_ready;
-	 l<= break_code;
-	 
-	 process(scancode, rst)
-	 begin
-	     if scancode = X"F0" and rst = '1' then
-				break_code <= '1';
-		  else
-			   break_code <= '0';
-		  end if;
-	 end process;
-	
-	 --break_code <= '1' when scancode = X"F0"
-	 --             else '0';
-	
-	 data <= (others => '0') when rst = '0'
-	         else scancode when falling_edge(break_code) and rst = '1';
+	process(clk)
+	begin
+	    if rising_edge(clk) then
+	        if rst = '0' then
+				   break_code <= '0';
+					data_ready <= '0';
+					data <= (others=>'0');
+			  else
+			      if read_ready = '1' then
+						 data_ready <= '0';
+			      elsif break_code = '1' and not (scancode = X"F0") then
+					    break_code <= '0';
+					    data_ready <= '1';
+						 data <= scancode;
+			      elsif scancode = X"F0" then
+					    break_code <= '1';
+						 data_ready <= '0';
+					else
+						 break_code <= break_code;
+						 data_ready <= data_ready;
+					end if;
+			  end if;
+		 end if;
+	end process;
 				
 end Behavioral;

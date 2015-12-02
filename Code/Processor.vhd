@@ -351,7 +351,8 @@ architecture Behavioral of Processor is
                key1 : out  STD_LOGIC_VECTOR(6 downto 0);
                key2 : out  STD_LOGIC_VECTOR(6 downto 0);
 					
-               bubble : out  STD_LOGIC
+               bubble : out  STD_LOGIC;
+               l : out  STD_LOGIC_VECTOR(15 downto 0)
             );
     end component;	
     -- cmd in (MEM part)
@@ -416,8 +417,7 @@ begin
     --l(15 downto 8) <= PCF(7 downto 0);
 	 -- l <= ComDataReady & (ComTbre and ComTsre) & ALUOutE(13 downto 0);
 	 --l <= (others => '0');
-	 --l(15 downto 8) <= PCF(3 downto 0) & InstrD(3 downto 0);-- & InstrD(7 downto 0);
-	 l <= PCF;
+	 --l(15 downto 8) <= PCF(3 downto 0) & InstrD(3 downto 0);-- & InstrD(7 downto 0)
 	 process(clk_50)
 	 begin
 		if clk_50'event and clk_50 = '1' then
@@ -514,9 +514,9 @@ begin
 									 ComdataReady, ComTbre, ComTsre,
 									 vgahsync, vgavsync,
 									 vgaR, vgaG, vgaB,
-									 					keyboard_clk, keyboard_data,
+									 keyboard_clk, keyboard_data,
                             key1, key2,
-                            bubble
+                            bubble, l
                         );
 	with Mem2RegM select
 		MemtoRegChooseM <= MemOutM when '1',

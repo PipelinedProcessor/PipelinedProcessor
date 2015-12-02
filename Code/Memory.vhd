@@ -59,7 +59,8 @@ entity Memory is
            key2 : out  STD_LOGIC_VECTOR(6 downto 0); 
            -- end for
         
-           bubble : out  STD_LOGIC
+           bubble : out  STD_LOGIC;
+           l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Memory;
 
@@ -134,8 +135,7 @@ architecture Behavioral of Memory is
                BF02 : out  STD_LOGIC_VECTOR(15 downto 0);
                BF03 : out  STD_LOGIC_VECTOR(15 downto 0);
                key1 : out  STD_LOGIC_VECTOR(6 downto 0);
-               key2 : out  STD_LOGIC_VECTOR(6 downto 0);
-					l : out  STD_LOGIC
+               key2 : out  STD_LOGIC_VECTOR(6 downto 0)
              );
     end component;
     -- end for keyboard
@@ -207,11 +207,12 @@ begin
 						  else '0';
 	 
 		-- for keyboard data
+    l <= keyboard_read_ready & BF03(2 downto 0) & BF02(11 downto 0);
     keyboard_read_ready <= '1' when readSignalM = '1' and addrM = X"BF02"
 									else '0';
     keyboard_driver : KeyBoardDriver port map (
               clk, rst, keyboard_clk, keyboard_data,
-              keyboard_read_ready, BF02, BF03, key2, key1, t
+              keyboard_read_ready, BF02, BF03, key2, key1
             );
     -- end for keyboard
 
