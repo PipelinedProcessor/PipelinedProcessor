@@ -236,9 +236,19 @@ BEGIN:            ;接收字符，保存到R1
 	NOP
 
 	LI R3 0x7f 
-    AND R1 R3 
+  AND R1 R3 
 	NOP	
 	; keep value R1, R4, R5
+
+	;是否退出游戏
+	LI R0 0x7B
+	CMP R1 R0
+	BTEQZ 0x3
+	NOP
+	B 0x3
+	NOP
+	JR R7 ; return
+	NOP
 
 	;检查字符是否合法
 	SLTUI R1 0x61

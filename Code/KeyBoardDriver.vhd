@@ -67,6 +67,7 @@ begin
 												else X"78" when data = X"22" --x
 												else X"79" when data = X"35" --y
 												else X"7A" when data = X"1A" --z
+												else X"7B" when data = X"76" --esc
 												else X"00";
 
    BF03 <= (1=>data_ready, others=>'0');
