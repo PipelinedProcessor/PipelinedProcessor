@@ -84,6 +84,7 @@ NET "ram2data[12]" LOC = P11;
 NET "ram2data[13]" LOC = P10;
 NET "ram2data[14]" LOC = N12;
 NET "ram2data[15]" LOC = N11;
+NET "Interrupt" LOC = U9;
 NET "clk_50" LOC = B9;
 NET "rst" LOC = U10;
 NET "ram1en" LOC = M15;

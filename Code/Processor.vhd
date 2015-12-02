@@ -10,6 +10,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity Processor is
     Port ( clk_50 : in  STD_LOGIC;
            rst : in  STD_LOGIC;
+			  Interrupt: in STD_LOGIC;
+			  
            ram1addr : out  STD_LOGIC_VECTOR (17 downto 0);
            ram1data : inout  STD_LOGIC_VECTOR (15 downto 0);
            ram1oe : out  STD_LOGIC;
@@ -64,6 +66,12 @@ architecture Behavioral of Processor is
     signal PCPlus1F : STD_LOGIC_VECTOR(15 downto 0);
       -- for Memory Unit
     signal PCF : STD_LOGIC_VECTOR(15 downto 0); 
+	 
+	 
+	 --hy_add
+	 signal UseInterruptINST: std_logic; -- 1--执行InterruptINST  0--执行指令内存
+	 signal InterruptINST: std_logic_vector(15 downto 0);
+	 signal INSTChoose: std_logic_vector(15 downto 0);
  -- ****** ******
     component REG_IF_ID is
         Port ( rst, clk, stall: in std_logic;
@@ -141,6 +149,10 @@ architecture Behavioral of Processor is
 	 
 	 component HazardUnit is
 			port(
+					rst: in std_logic;
+					clk: in std_logic;--主时钟
+					Interrupt: in std_logic;--中断信号，当Interrupt为0时，代表产生中断
+					
 					--control signal
 					RegDstE: in std_logic_vector(3 downto 0);
 					MemReadE: in std_logic;
@@ -154,7 +166,9 @@ architecture Behavioral of Processor is
 	
 					stallF: out std_logic;
 					stallD: out std_logic;
-					FlushE: out std_logic
+					FlushE: out std_logic;
+					UseInterruptINST: out std_logic; -- 1--执行InterruptINST  0--执行指令内存
+					InterruptINST: out std_logic_vector(15 downto 0)
 				);
 		end component;
 	 
@@ -419,12 +433,14 @@ begin
 	 --l <= (others => '0');
 	 l <= PCF;
 	 --l(15 downto 8) <= PCF(3 downto 0) & InstrD(3 downto 0);-- & InstrD(7 downto 0)
+	 
 	 process(clk_50)
 	 begin
 	 	if clk_50'event and clk_50 = '1' then
 			clk <= not clk;
 		end if;
 	 end process;
+
 	 --clk <= clk_50;
 -- ****** IF ******
     --stallF <= '0';
@@ -436,11 +452,14 @@ begin
                             ToutD, RxEZD, PCBranchD,
                             PCPlus1F, PCF
                         ); 
+								
+	INSTChoose <= InterruptINST when UseInterruptINST = '1'
+				else	InstrF;
 -- ****** IF2ID ******
     --stallD <= '0';
     IF2IDpart : REG_IF_ID port map (
                             rst, clk, stallD,
-                            InstrF, PCPlus1F, InstrD, PCPlus1D
+                            INSTChoose, PCPlus1F, InstrD, PCPlus1D
                         );
 -- ****** ID ******
 	
@@ -470,9 +489,11 @@ begin
 						);
 
     HazardUnitpart: HazardUnit port map (
+									 rst, clk, Interrupt, 
                             RegDstE, MemReadE, ALUSrc1D, ALUSrc2D, bubble,
 									 InstrD(10 downto 8), InstrD(7 downto 5), InstrD(15 downto 11), 
-									 stallF, stallD, FlushE
+									 stallF, stallD, FlushE,
+									 UseInterruptINST, InterruptINST
                         );
 								
 								
