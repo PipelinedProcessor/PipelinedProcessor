@@ -93,12 +93,9 @@ NET "ram2oe" LOC = R9;
 NET "ram2we" LOC = M9;
 NET "rdn" LOC = C14;
 NET "wrn" LOC = U5;
-
-
 NET "ComdataReady" LOC = A16;
 NET "ComTbre" LOC = D14;
 NET "ComTsre" LOC = N9;
-
 
 NET "vgaB[1]" LOC = A6;
 NET "vgaB[2]" LOC = B6;
@@ -112,6 +109,23 @@ NET "vgaR[0]" LOC = A7;
 NET "vgahsync" LOC = D6;
 NET "vgavsync" LOC = E6;
 
+
 # PlanAhead Generated physical constraints 
 
 NET "ram1oe" LOC = M16;
+NET "keyboard_clk" LOC = U6;
+NET "keyboard_data" LOC = V6;
+NET "key1[0]" LOC = D7;
+NET "key1[1]" LOC = E7;
+NET "key1[2]" LOC = C7;
+NET "key1[3]" LOC = F7;
+NET "key1[4]" LOC = E8;
+NET "key1[5]" LOC = A8;
+NET "key1[6]" LOC = F8;
+NET "key2[0]" LOC = D9;
+NET "key2[1]" LOC = E9;
+NET "key2[2]" LOC = C9;
+NET "key2[3]" LOC = F9;
+NET "key2[4]" LOC = A10;
+NET "key2[5]" LOC = G9;
+NET "key2[6]" LOC = B10;

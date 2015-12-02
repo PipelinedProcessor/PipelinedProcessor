@@ -51,8 +51,16 @@ entity Memory is
 			  
 			  vgahsync, vgavsync : out STD_LOGIC;
 			  vgaR, vgaG, vgaB : out STD_LOGIC_VECTOR (2 downto 0);
-			  
-           bubble : out  STD_LOGIC
+			 
+					 -- for keyboard
+           keyboard_clk : in  STD_LOGIC;
+           keyboard_data : in  STD_LOGIC;
+           key1 : out  STD_LOGIC_VECTOR(6 downto 0);
+           key2 : out  STD_LOGIC_VECTOR(6 downto 0); 
+           -- end for
+        
+           bubble : out  STD_LOGIC;
+           l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Memory;
 
@@ -110,6 +118,28 @@ architecture Behavioral of Memory is
     signal dataOut1, dataOut2 : STD_LOGIC_VECTOR(15 downto 0); 
     signal dataInC, dataOutC : STD_LOGIC_VECTOR(7 downto 0);
 	 signal addrV : STD_LOGIC_VECTOR(11 downto 0);
+
+	  -- for keyboard data
+    signal keyboard_read_ready : STD_LOGIC;
+    signal BF02 : STD_LOGIC_VECTOR(15 downto 0);
+    signal BF03 : STD_LOGIC_VECTOR(15 downto 0);
+
+    component KeyBoardDriver is
+        Port ( clk : in  STD_LOGIC;
+               rst : in  STD_LOGIC;
+               keyboard_clk : in  STD_LOGIC;
+               keyboard_data : in  STD_LOGIC;
+
+               read_ready : in  STD_LOGIC;
+
+               BF02 : out  STD_LOGIC_VECTOR(15 downto 0);
+               BF03 : out  STD_LOGIC_VECTOR(15 downto 0);
+               key1 : out  STD_LOGIC_VECTOR(6 downto 0);
+               key2 : out  STD_LOGIC_VECTOR(6 downto 0)
+             );
+    end component;
+    -- end for keyboard
+
 begin
     ram1 : Ram port map (
               clk, rst, readSignal1, writeSignal1,
@@ -176,6 +206,15 @@ begin
 								 and addrM(15 downto 12) = "1010" -- A000~AFFF
 						  else '0';
 	 
+		-- for keyboard data
+    l <= keyboard_read_ready & BF03(2 downto 0) & BF02(11 downto 0);
+    keyboard_read_ready <= '1' when readSignalM = '1' and addrM = X"BF02"
+									else '0';
+    keyboard_driver : KeyBoardDriver port map (
+              clk, rst, keyboard_clk, keyboard_data,
+              keyboard_read_ready, BF02, BF03, key2, key1
+            );
+    -- end for keyboard
 
     addr2 <= addrM when addrM(15) = '0'
                     and (readSignalM = '1' or writeSignalM = '1')
@@ -190,5 +229,9 @@ begin
     instrF <= dataOut2;
     dataOutM <= dataOut2 when addrM(15) = '0' and readSignalM = '1'
                 else "00000000" & dataOutC when addrM(15 downto 1) = "101111110000000" and readSignalM = '1'
+								-- for keyboard data
+                else BF02 when readSignalM = '1' and addrM = X"BF02"
+                else BF03 when readSignalM = '1' and addrM = X"BF03"
+                -- end for keyboard
 					 else dataOut1;
 end Behavioral;
