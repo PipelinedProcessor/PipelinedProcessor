@@ -6,20 +6,6 @@ NOP
 ;0xBF10  0xBF11 BF12 0xBF13 BF14 0xBF15
 ; R0    R1   R2   R3   R4   R5  
 
-;download typing game
-LI R0 0x200
-LI R1 0x340
-LI R2 0x5000
-LW R0 R3 0X0
-SW R2 R3 0X0
-ADDIU R0 0x1
-ADDIU R2 0x1
-CMP R0 R1
-BTEQZ 0x3
-NOP
-B 0x7F8
-NOP
-
 B START
 NOP
 
@@ -187,10 +173,28 @@ START:
 	LI R0 0x000D
 	SW R6 R0 0x0000
 	NOP
-	
 
-	
-
+	;download typing game
+	LI R0 0x2
+	SLL R0 R0 0x0
+	ADDIU R0 0x6
+	LI R1 0x3
+	SLL R1 R1 0X0
+	ADDIU R1 0x40
+	LI R2 0x50
+	SLL R2 R2 0x0
+AGAIN:
+	LW R0 R3 0X0
+	SW R2 R3 0X0
+	NOP
+	ADDIU R0 0x1
+	ADDIU R2 0x1
+	CMP R0 R1
+	NOP
+	BTEQZ 0x3
+	NOP
+	B AGAIN
+	NOP
 	
 
 	
@@ -942,7 +946,7 @@ ADDIU R2 0x68 ; for character 'h'
 SW R0 R2 0x0
 
 
-BEGIN:            ;接收字符，保存到R1
+BEGIN_T:            ;接收字符，保存到R1
 	MFPC R0
 	ADDIU R0 0x7
 	LI R3 0xC0
