@@ -35,7 +35,7 @@ entity Processor is
            key2 : out  STD_LOGIC_VECTOR(6 downto 0);
 			     -- end for keyboard
 
-			  
+	  
            l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Processor;
@@ -118,7 +118,6 @@ architecture Behavioral of Processor is
             );
     end component;
 	 
-    
 	
 	component ForwardUnit is
 		port(
