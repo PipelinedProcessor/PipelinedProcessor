@@ -59,8 +59,8 @@ entity Memory is
            key2 : out  STD_LOGIC_VECTOR(6 downto 0); 
            -- end for
         
-           bubble : out  STD_LOGIC;
-           l : out  STD_LOGIC_VECTOR(15 downto 0)
+           bubble : out  STD_LOGIC--;
+           --l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
 end Memory;
 
@@ -207,7 +207,7 @@ begin
 						  else '0';
 	 
 		-- for keyboard data
-    l <= keyboard_read_ready & BF03(2 downto 0) & BF02(11 downto 0);
+    --l <= keyboard_read_ready & BF03(2 downto 0) & BF02(11 downto 0);
     keyboard_read_ready <= '1' when readSignalM = '1' and addrM = X"BF02"
 									else '0';
     keyboard_driver : KeyBoardDriver port map (
