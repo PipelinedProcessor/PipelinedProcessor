@@ -176,7 +176,7 @@ begin
 				
 			when I10 => 	
 				next_state <= I11;
-				InterruptINST <= X"6E11";
+				InterruptINST <= X"6E05";
 				
 			when I11 => 	
 				next_state <= I12;

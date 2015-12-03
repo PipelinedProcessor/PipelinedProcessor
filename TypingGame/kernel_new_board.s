@@ -117,7 +117,7 @@ START:
 	;≥ı ºªØ’ªµÿ÷∑
 	LI R0 0x00BF 
 	SLL R0 R0 0x0000
-	ADDIU R0 0x10					;R0=0xBF10 
+	ADDIU R0 0x70					;R0=0xBF70 
 	MTSP R0
 	NOP
 	
