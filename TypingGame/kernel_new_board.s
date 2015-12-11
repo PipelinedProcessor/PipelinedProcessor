@@ -970,7 +970,16 @@ BEGIN2:            ;接收字符，保存到R1
     AND R1 R3 
 	NOP	
 	; keep value R1, R4, R5
-
+    
+    LI R0 0x7B
+    CMP R0 R1
+    BTEQZ 0x3
+    NOP
+    B 0x3
+    NOP
+    JR R7
+    NOP
+    
 	;检查字符是否合法
 	SLTUI R1 0x61
 	BTEQZ LEGAL1
