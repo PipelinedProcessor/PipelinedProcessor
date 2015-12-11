@@ -36,7 +36,14 @@ entity Processor is
            key1 : out  STD_LOGIC_VECTOR(6 downto 0);
            key2 : out  STD_LOGIC_VECTOR(6 downto 0);
 			     -- end for keyboard
-
+			  flash_byte : out std_logic;
+			  flash_vpen : out std_logic;
+			  flash_rp : out std_logic;
+			  flash_ce : out std_logic;
+			  flash_oe : out std_logic;
+			  flash_we : out std_logic;
+			  flash_addr : out std_logic_vector(21 downto 0);
+			  flash_data : inout std_logic_vector(15 downto 0);
 	  
            l : out  STD_LOGIC_VECTOR(15 downto 0)
          );
@@ -365,6 +372,15 @@ architecture Behavioral of Processor is
                key1 : out  STD_LOGIC_VECTOR(6 downto 0);
                key2 : out  STD_LOGIC_VECTOR(6 downto 0);
 					
+					flash_byte : out std_logic;
+				   flash_vpen : out std_logic;
+				   flash_rp : out std_logic;
+				   flash_ce : out std_logic;
+				   flash_oe : out std_logic;
+				   flash_we : out std_logic;
+				   flash_addr : out std_logic_vector(21 downto 0);
+				   flash_data : inout std_logic_vector(15 downto 0);
+					
                bubble : out  STD_LOGIC--;
                --l : out  STD_LOGIC_VECTOR(15 downto 0)
             );
@@ -540,6 +556,9 @@ begin
 									 vgaR, vgaG, vgaB,
 									 keyboard_clk, keyboard_data,
                             key1, key2,
+									 flash_byte, flash_vpen, 
+								    flash_rp, flash_ce, flash_oe, flash_we,
+								    flash_addr, flash_data,
                             bubble--, l
                         );
 	with Mem2RegM select

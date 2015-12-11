@@ -58,6 +58,15 @@ entity Memory is
            key1 : out  STD_LOGIC_VECTOR(6 downto 0);
            key2 : out  STD_LOGIC_VECTOR(6 downto 0); 
            -- end for
+			  
+			  flash_byte : out std_logic;
+			  flash_vpen : out std_logic;
+			  flash_rp : out std_logic;
+			  flash_ce : out std_logic;
+			  flash_oe : out std_logic;
+			  flash_we : out std_logic;
+			  flash_addr : out std_logic_vector(21 downto 0);
+			  flash_data : inout std_logic_vector(15 downto 0);
         
            bubble : out  STD_LOGIC--;
            --l : out  STD_LOGIC_VECTOR(15 downto 0)
@@ -65,6 +74,20 @@ entity Memory is
 end Memory;
 
 architecture Behavioral of Memory is
+	 component Flash is
+		port(
+			clk, rst : in std_logic;
+			flash_byte : out std_logic;
+			flash_vpen : out std_logic;
+			flash_rp : out std_logic;
+			flash_ce : out std_logic;
+			flash_oe : out std_logic;
+			flash_we : out std_logic;
+			flash_addr : out std_logic_vector(21 downto 0);
+			flash_data : inout std_logic_vector(15 downto 0);
+			booting : out std_logic
+			);
+		end component;
     component Ram is
         Port ( clk, rst : in STD_LOGIC;
                readSignal, writeSignal : in STD_LOGIC;
@@ -111,18 +134,20 @@ architecture Behavioral of Memory is
 		);
 	 end component;
 
-    signal readSignal1, readSignal2, readSignalC : STD_LOGIC;
+    signal readSignal1, readSignal2, readSignalC, clk125, clk6125 : STD_LOGIC;
     signal writeSignal1, writeSignal2, writeSignalC, writeSignalV : STD_LOGIC; 
     signal addr1, addr2 : STD_LOGIC_VECTOR(15 downto 0);
     signal dataIn1, dataIn2, dataInV: STD_LOGIC_VECTOR(15 downto 0);
     signal dataOut1, dataOut2 : STD_LOGIC_VECTOR(15 downto 0); 
     signal dataInC, dataOutC : STD_LOGIC_VECTOR(7 downto 0);
 	 signal addrV : STD_LOGIC_VECTOR(11 downto 0);
+	 signal addrFlash : STD_LOGIC_VECTOR(21 downto 0);
 
 	  -- for keyboard data
     signal keyboard_read_ready : STD_LOGIC;
     signal BF02 : STD_LOGIC_VECTOR(15 downto 0);
     signal BF03 : STD_LOGIC_VECTOR(15 downto 0);
+	 signal booting : STD_LOGIC;
 
     component KeyBoardDriver is
         Port ( clk : in  STD_LOGIC;
@@ -171,11 +196,34 @@ begin
 				  vgahsync, vgavsync,
 				  vgaR, vgaG, vgaB
 	 );
-
 	 
-	  
-    bubble <= '1' when addrM(15) = '0' 
-                   and (writeSignalM = '1' or readSignalM = '1')
+	 uflash : flash port map (
+				  clk6125, rst,
+				  flash_byte, flash_vpen,
+				  flash_rp, flash_ce, flash_oe, flash_we,
+				  addrFlash, flash_data,
+				  booting
+	 );
+	 
+	 flash_addr <= addrFlash;
+	 
+	 process(clk)
+	 begin
+		if rising_edge(clk) then
+			clk125 <= not clk125;
+		end if;
+	 end process;
+	 
+	 process(clk125)
+	 begin
+		if rising_edge(clk125) then
+			clk6125 <= not clk6125;
+		end if;
+	end process;
+	 
+    bubble <= '1' when (addrM(15) = '0' 
+                   and (writeSignalM = '1' or readSignalM = '1'))
+						 or booting = '1'
               else '0';
 
     ram1EN <= '1' when rst = '0' or addrM(15 downto 4) = "101111110000"
@@ -184,9 +232,11 @@ begin
     
     readSignal1 <= '0' when writeSignalM = '1' 
                          or addrM(15 downto 4) = "101111110000"
+								 or booting = '1'
                    else '1';  
     readSignal2 <= '0' when (addrM(15) = '0' 
                         and writeSignalM = '1')
+								or booting = '1'
                    else '1'; 
     readSignalC <= '1' when readSignalM = '1'
                         and addrM(15 downto 1) = "101111110000000"
@@ -195,9 +245,11 @@ begin
     writeSignal1 <= '0' when addrM(15) = '0'
                           or writeSignalM = '0'
                           or addrM(15 downto 4) = "101111110000"
+								  or booting = '1'
                     else '1'; 
     writeSignal2 <= '1' when (addrM(15) = '0'
                          and writeSignalM = '1')
+								 or booting = '1'
                     else '0';  
     writeSignalC <= '1' when writeSignalM = '1'
                          and addrM(15 downto 1) = "101111110000000"
@@ -218,12 +270,14 @@ begin
 
     addr2 <= addrM when addrM(15) = '0'
                     and (readSignalM = '1' or writeSignalM = '1')
+				 else addrFlash(15 downto 0) when booting = '1'
              else addrF;
     addr1 <= addrM;
 	 addrV <= addrM(11 downto 0);
 	 
     dataIn1 <= dataInM;
-    dataIn2 <= dataInM;
+    dataIn2 <= flash_data when booting = '1' 
+			 else dataInM;
     dataInC <= dataInM(7 downto 0);
 	 dataInV <= dataInM;
     instrF <= dataOut2;

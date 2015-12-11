@@ -723,12 +723,11 @@ COMPILE:
 NOP
 NOP
 NOP
-
 ;R0 R1 R2 R3 R4 R5
 
 ;R4 用于保存坐标信息
 ; Reserved  y   x
-;  15-13  12-8 7-0
+;  15-13  11-7 6-0
 
 ;R5 用于保存字符信息
 ;   R     G    B  code
@@ -736,8 +735,14 @@ NOP
 
 ;0xC000~0xC07f
 ; exist reserved  y   x
-;  15    14-13  12-8 7-0
+;  15    14-13  11-7 6-0
 ;0xC080 存储R3的临时值
+
+;0xC100~0xC17f
+;color
+
+;0xC200
+;random_seed
 
 ;0xD000~0xEFFF
 ;映射到VGA
@@ -767,13 +772,13 @@ LI R1 0xC0
 SLL R1 R1 0x0
 MOVE R3 R1
 ADDIU R3 0x7f
-LOOP1:
+LOOP2:
 SW R1 R0 0x0  ;置零
 ADDIU R1 0x1
 CMP R3 R1
 BTEQZ BREAK2
 NOP
-B LOOP1
+B LOOP2
 BREAK2:
 NOP
 
@@ -946,7 +951,7 @@ ADDIU R2 0x68 ; for character 'h'
 SW R0 R2 0x0
 
 
-BEGIN_T:            ;接收字符，保存到R1
+BEGIN2:            ;接收字符，保存到R1
 	MFPC R0
 	ADDIU R0 0x7
 	LI R3 0xC0
